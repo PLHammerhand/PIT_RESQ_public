@@ -243,8 +243,32 @@
      <Compile Include="Assets\Part Two - Particle systems\Sky FX Pack\Scripts\RotateBehaviour.cs" />
      <Compile Include="Assets\Part Two - Particle systems\Sky FX Pack\Scripts\ScrollBehaviour.cs" />
      <Compile Include="Assets\Scripts\AstarAI.cs" />
+     <Compile Include="Assets\Scripts\Enemies\Enemy.cs" />
+     <Compile Include="Assets\Scripts\Enemies\EnemySpawn.cs" />
+     <Compile Include="Assets\Scripts\EnumsAndStructs.cs" />
+     <Compile Include="Assets\Scripts\Managers\BuildingManager.cs" />
+     <Compile Include="Assets\Scripts\Managers\EventManager.cs" />
+     <Compile Include="Assets\Scripts\Managers\GUIManager.cs" />
+     <Compile Include="Assets\Scripts\Managers\GlobalObjectPoolManager.cs" />
+     <Compile Include="Assets\Scripts\Managers\LevelMaster.cs" />
+     <Compile Include="Assets\Scripts\Managers\TimeManager.cs" />
+     <Compile Include="Assets\Scripts\Managers\UpgradeManager.cs" />
+     <Compile Include="Assets\Scripts\ObjectPool.cs" />
+     <Compile Include="Assets\Scripts\Singleton.cs" />
+     <Compile Include="Assets\Scripts\Towers\AlienTower.cs" />
+     <Compile Include="Assets\Scripts\Towers\BaseTower.cs" />
+     <Compile Include="Assets\Scripts\Towers\Candyshop.cs" />
+     <Compile Include="Assets\Scripts\Towers\ConstructionPosition.cs" />
+     <Compile Include="Assets\Scripts\Towers\HitParticles.cs" />
+     <Compile Include="Assets\Scripts\Towers\MageMissle.cs" />
+     <Compile Include="Assets\Scripts\Towers\MageTower.cs" />
+     <Compile Include="Assets\Scripts\Towers\Projectile.cs" />
+     <Compile Include="Assets\Scripts\Towers\RobotBullet.cs" />
+     <Compile Include="Assets\Scripts\Towers\RobotTower.cs" />
+     <Compile Include="Assets\Scripts\Waves.cs" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored.shader" />
      <None Include="Assets\Gem Shader\diamond shader.shader" />
+     <None Include="Assets\Editor\WaveEditor.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Programy/Programowanie/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

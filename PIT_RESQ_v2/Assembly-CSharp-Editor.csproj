@@ -94,6 +94,7 @@
      <Compile Include="Assets\NGUI\Scripts\Editor\UIWidgetInspector.cs" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored.shader" />
      <None Include="Assets\Gem Shader\diamond shader.shader" />
+     <None Include="Assets\Editor\WaveEditor.txt" />
  <Reference Include="Assembly-UnityScript">
  <HintPath>D:/Projekty/Unity/PIT_RESQ_v2/PIT_RESQ_v2/Library/ScriptAssemblies/Assembly-UnityScript.dll</HintPath>
  </Reference>
