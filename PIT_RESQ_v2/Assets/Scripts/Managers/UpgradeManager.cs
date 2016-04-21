@@ -3,14 +3,14 @@ using System.Collections;
 
 public class UpgradeManager : Singleton<UpgradeManager>
 {
+	//	TODO
+	//	Global upgrades
 
-	// Use this for initialization
 	void Start()
 	{
 
 	}
 
-	// Update is called once per frame
 	void Update()
 	{
 

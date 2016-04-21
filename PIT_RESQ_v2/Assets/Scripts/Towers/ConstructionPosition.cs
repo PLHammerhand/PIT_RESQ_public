@@ -12,7 +12,7 @@ public class ConstructionPosition : MonoBehaviour
 	public float            multiplayerRange;
 
 	[HideInInspector]
-	public BaseTower        constructedTower
+	public BaseTower ConstructedTower
 	{
 		get
 		{
@@ -31,7 +31,21 @@ public class ConstructionPosition : MonoBehaviour
         }
 	}
 
+	[HideInInspector]
+	public bool Renderer
+	{
+		get
+		{
+			return __renderer.enabled;
+		}
+		set
+		{
+			__renderer.enabled = value;
+		}
+	}
+
 	private BaseTower       __constructedTower;
+	private MeshRenderer    __renderer;
 
 
 	void Start()
@@ -56,5 +70,7 @@ public class ConstructionPosition : MonoBehaviour
 			go.transform.position = gameObject.transform.position;
 			go.transform.rotation = gameObject.transform.rotation;
 		}
+
+		__renderer = gameObject.GetComponent<MeshRenderer>();
 	}
 }

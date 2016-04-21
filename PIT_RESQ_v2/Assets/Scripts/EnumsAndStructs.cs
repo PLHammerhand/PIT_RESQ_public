@@ -7,3 +7,17 @@ public struct Wave
 	public GameObject           enemy;
 	public int                  enemyCount;
 }
+
+public enum BuildingState
+{
+	GAMEPLAY,
+	CONSTRUCTION,
+	UPGRADE
+}
+
+public enum Tower
+{
+	Alien,
+	Mage,
+	Robot
+}
