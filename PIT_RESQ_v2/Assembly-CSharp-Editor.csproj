@@ -95,6 +95,7 @@
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored.shader" />
      <None Include="Assets\Gem Shader\diamond shader.shader" />
      <None Include="Assets\Editor\WaveEditor.txt" />
+     <None Include="Assets\Plugins\Pixelplacement\iTween\ReadMe!\ReadMe!.txt" />
  <Reference Include="Assembly-UnityScript">
  <HintPath>D:/Projekty/Unity/PIT_RESQ_v2/PIT_RESQ_v2/Library/ScriptAssemblies/Assembly-UnityScript.dll</HintPath>
  </Reference>
@@ -160,6 +161,8 @@
  </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
+      <Project>{69615F37-CA7D-0F04-13C8-E22228167ED5}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
     <ProjectReference Include="Assembly-CSharp.csproj">
       <Project>{7BCD100D-6DB2-C7CC-174E-5C43547AFFF6}</Project>      <Name>Assembly-CSharp</Name>    </ProjectReference>
   </ItemGroup>

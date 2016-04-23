@@ -60,25 +60,27 @@ public class LevelMaster : Singleton<LevelMaster>
 		}
 	}
 
-	//	Methods
 
 	void Update()
 	{
-		if(GUIManager.Instance.ready && !ready)
-			__Init();
+		if(!ready)
+			Initialize();
 	}
 
 	public void Initialize()
 	{
 		if(GUIManager.Instance.ready)
 		{
-			__Init();
 			__CalculateMaxEnemyTypes();
+
+			gemPrefab = Resources.Load("Gem") as GameObject;
 			GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(gemPrefab, Gems);
 
 			__candyshop = GameObject.FindObjectOfType<Candyshop>();
-			candyshopPosition = __candyshop.gameObject.transform;
 			__candyshop.gems = __gems;
+			candyshopPosition = __candyshop.gameObject.transform;
+
+			ready = true;
 		}
 	}
 
@@ -121,11 +123,6 @@ public class LevelMaster : Singleton<LevelMaster>
 
 		foreach(GameObject key in maxEnemies.Keys)
 			GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(key, maxEnemies[key]);
-	}
-
-	private void __Init()
-	{
-		ready = true;
 	}
 
 	private void __EndGame(bool victory = false)

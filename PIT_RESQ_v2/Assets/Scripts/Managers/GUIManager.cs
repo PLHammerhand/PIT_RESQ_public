@@ -58,7 +58,7 @@ public class GUIManager : Singleton<GUIManager>
 
 	//	--	Other
 	//private 
-	private Transform           __uiCamera;
+	private UICamera			__uiCamera;
 	private int					__money;
 	private int                 __score;
 	private int                 __wave;
@@ -121,13 +121,13 @@ public class GUIManager : Singleton<GUIManager>
 			switch(button.name)
 			{
 				case "AlienButton":
-					BuildingManager.Instance.tower = Tower.Alien;
+					BuildingManager.Instance.tower = Tower.ALIEN;
 					break;
 				case "MageButton":
-					BuildingManager.Instance.tower = Tower.Mage;
+					BuildingManager.Instance.tower = Tower.MAGE;
 					break;
 				case "RobotButton":
-					BuildingManager.Instance.tower = Tower.Robot;
+					BuildingManager.Instance.tower = Tower.ROBOT;
 					break;
 			}
 
@@ -139,17 +139,17 @@ public class GUIManager : Singleton<GUIManager>
 
 	public void Initialize()
 	{
-		__uiCamera = GameObject.FindObjectOfType<UICamera>().transform;
+		__uiCamera = GameObject.FindObjectOfType<UICamera>();
 
 		if(__uiCamera != null)
 		{
 			//	Constructions
-			__moniesLabel = __uiCamera.FindChild("Constructions/ConstructionsPanel/Money").gameObject.GetComponent<UILabel>();
-			__alienCostLabel = __uiCamera.FindChild("Constructions/ConstructionsPanel/AlienButton/Label").GetComponent<UILabel>();
-			__mageCostLabel = __uiCamera.FindChild("Constructions/ConstructionsPanel/MageButton/Label").GetComponent<UILabel>();
-			__robotCostLabel = __uiCamera.FindChild("Constructions/ConstructionsPanel/RobotButton/Label").GetComponent<UILabel>();
+			__moniesLabel = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/Money").gameObject.GetComponent<UILabel>();
+			__alienCostLabel = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/AlienButton/Label").GetComponent<UILabel>();
+			__mageCostLabel = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/MageButton/Label").GetComponent<UILabel>();
+			__robotCostLabel = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/RobotButton/Label").GetComponent<UILabel>();
 
-			__infoPanel = __uiCamera.FindChild("Constructions/ConstructionsPanel/Info").GetComponent<UIPanel>();
+			__infoPanel = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/Info").GetComponent<UIPanel>();
 			__towerNameLabel = __infoPanel.transform.FindChild("TowerName").GetComponent<UILabel>();
 			__towerSummaryLabel = __infoPanel.transform.FindChild("Summary").GetComponent<UILabel>();
 			__towerDamageLabel = __infoPanel.transform.FindChild("Damage").GetComponent<UILabel>();
@@ -157,22 +157,22 @@ public class GUIManager : Singleton<GUIManager>
 			__towerFirerateLabel = __infoPanel.transform.FindChild("Firerate").GetComponent<UILabel>();
 
 			//	Superpowers
-			__superpowersPanel = __uiCamera.FindChild("Superpowers/SuperpowersPanel").GetComponent<UIPanel>();
+			__superpowersPanel = __uiCamera.transform.FindChild("Superpowers/SuperpowerPanel").GetComponent<UIPanel>();
 			__courierButton = __superpowersPanel.transform.FindChild("Courier").GetComponent<UIButton>();
 			__courierTimer = __superpowersPanel.transform.FindChild("Courier/Timer").GetComponent<UILabel>();
 
 			//	General
-			__generalPanel = __uiCamera.FindChild("General/GeneralPanel").GetComponent<UIPanel>();
+			__generalPanel = __uiCamera.transform.FindChild("General/GeneralPanel").GetComponent<UIPanel>();
 			__generalLabel = __generalPanel.transform.FindChild("Label").GetComponent<UILabel>();
 			//	Info
-			__scoreLabel = __uiCamera.FindChild("GameplayInfo/InfoPanel/Score").GetComponent<UILabel>();
-			__waveLabel = __uiCamera.FindChild("GameplayInfo/InfoPanel/Wave").GetComponent<UILabel>();
+			__scoreLabel = __uiCamera.transform.FindChild("GameplayInfo/InfoPanel/Score").GetComponent<UILabel>();
+			__waveLabel = __uiCamera.transform.FindChild("GameplayInfo/InfoPanel/Wave").GetComponent<UILabel>();
 			//	Menu
-			__nextWaveLabel = __uiCamera.FindChild("Menu/MenuPanel/NextWave/Label").GetComponent<UILabel>();
+			__nextWaveLabel = __uiCamera.transform.FindChild("Menu/MenuPanel/NextWave/Label").GetComponent<UILabel>();
 
 			//	Upgrades
 			//	--	Alien
-			__alienUpgradePanel = __uiCamera.FindChild("Upgrades/AlienUpgrade").GetComponent<UIPanel>();
+			__alienUpgradePanel = __uiCamera.transform.FindChild("Upgrades/AlienUpgrade").GetComponent<UIPanel>();
 			__alienLaserUpgradeButton = __alienUpgradePanel.transform.FindChild("Laser").GetComponent<UIButton>();
 			__alienLaserUpgradeLabel = __alienLaserUpgradeButton.transform.FindChild("Label").GetComponent<UILabel>();
 			__alienDamageUpgradeButton = __alienUpgradePanel.transform.FindChild("Damage").GetComponent<UIButton>();
@@ -180,15 +180,22 @@ public class GUIManager : Singleton<GUIManager>
             __alienRangeUpgradeButton = __alienUpgradePanel.transform.FindChild("Range").GetComponent<UIButton>();
 			__alienRangeUpgradeLabel = __alienRangeUpgradeButton.transform.FindChild("Label").GetComponent<UILabel>();
 			//	--	Mage
-			__mageUpgradePanel = __uiCamera.FindChild("Upgrades/MageUpgrade").GetComponent<UIPanel>();
+			__mageUpgradePanel = __uiCamera.transform.FindChild("Upgrades/MageUpgrade").GetComponent<UIPanel>();
 			__mageLeftUpgradeButton = __mageUpgradePanel.transform.FindChild("Left").GetComponent<UIButton>();
 			__mageLeftUpgradeLabel = __mageLeftUpgradeButton.transform.FindChild("Label").GetComponent<UILabel>();
 			__mageRightUpgradeButton = __mageUpgradePanel.transform.FindChild("Right").GetComponent<UIButton>();
 			__mageRightUpgradeLabel = __mageRightUpgradeButton.transform.FindChild("Label").GetComponent<UILabel>();
 			//	-- Robot
-			__robotUpgradePanel = __uiCamera.FindChild("Upgrades/RobotUpgrade").GetComponent<UIPanel>();
+			__robotUpgradePanel = __uiCamera.transform.FindChild("Upgrades/RobotUpgrade").GetComponent<UIPanel>();
 			__robotUpgradeButton = __robotUpgradePanel.transform.FindChild("Upgrade").GetComponent<UIButton>();
 			__robotUpgradeLabel = __robotUpgradeButton.transform.FindChild("Label").GetComponent<UILabel>();
+
+			ready = true;
+
+			UIButtonMessage[] btnsMsgs = __uiCamera.GetComponentsInChildren<UIButtonMessage>();
+
+			foreach(UIButtonMessage bm in btnsMsgs)
+				bm.target = Instance.gameObject;
 		}
 	}
 

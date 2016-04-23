@@ -4,13 +4,13 @@ using System.Collections.Generic;
 
 public class GlobalObjectPoolManager : Singleton<GlobalObjectPoolManager>
 {
-	public Dictionary<GameObject, List<GameObject>>			objects				= new Dictionary<GameObject, List<GameObject>>();
+	private Dictionary<GameObject, List<GameObject>>			__objects				= new Dictionary<GameObject, List<GameObject>>();
 
 	public GameObject GetGameObject(GameObject pooled)
-	{	
+	{
 		List<GameObject> outList;
 
-		if(objects.TryGetValue(pooled, out outList))
+		if(__objects.TryGetValue(pooled, out outList))
 		{
 			GameObject go;
 			for(int i = 0; i < outList.Count; i++)
@@ -32,7 +32,7 @@ public class GlobalObjectPoolManager : Singleton<GlobalObjectPoolManager>
 		List<GameObject> list;
 		go.SetActive(false);
 
-		if(objects.TryGetValue(go, out list))
+		if(__objects.TryGetValue(go, out list))
 			list.Add(go);
 		else
 			__CreateKeyListPair(go);
@@ -41,8 +41,11 @@ public class GlobalObjectPoolManager : Singleton<GlobalObjectPoolManager>
 	private GameObject __CreateKeyListPair(GameObject go)
 	{
 		List<GameObject> list = new List<GameObject>();
-		list.Add(go);
-		objects.Add(go, list);
+		GameObject tmpGO = Instantiate(go) as GameObject;
+		tmpGO.name = go.name + " " + tmpGO.GetInstanceID();
+		list.Add(tmpGO);
+		tmpGO.SetActive(false);
+		__objects.Add(go, list);
 
 		return go;
 	}
@@ -51,12 +54,16 @@ public class GlobalObjectPoolManager : Singleton<GlobalObjectPoolManager>
 	{
 		List<GameObject> outList;
 
-		if(!objects.TryGetValue(go, out outList))
+		if(!__objects.TryGetValue(go, out outList))
 			__CreateKeyListPair(go);
-		
+
+		if(outList == null)
+			outList = new List<GameObject>();
+
 		for(int i = 0; i < number; i++)
 		{
 			GameObject tmpGO = Instantiate(go) as GameObject;
+			tmpGO.name = go.name + " " + tmpGO.GetInstanceID();
 			outList.Add(tmpGO);
 			tmpGO.SetActive(false);
 		}

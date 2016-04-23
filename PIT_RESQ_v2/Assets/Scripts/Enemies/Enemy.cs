@@ -22,7 +22,8 @@ public class Enemy : MonoBehaviour
 
 	void Start()
 	{
-		EnemySpawn = GameObject.FindObjectOfType<EnemySpawn>();
+		if(EnemySpawn == null)
+			EnemySpawn = GameObject.FindObjectOfType<EnemySpawn>();
 
 		__gem = transform.FindChild("Gem").gameObject;
 		__gem.SetActive(false);
@@ -50,18 +51,6 @@ public class Enemy : MonoBehaviour
 			__currentWaypoint++;
 			gameObject.transform.LookAt(__path.vectorPath[__currentWaypoint]);
 		}
-
-		//if(__currentWaypoint >= __path.vectorPath.Count)
-		//{
-		//	if(__returning)
-		//		__seeker.StartPath(transform.position, LevelMaster.Instance.candyshopPosition.position, OnPathComplete);
-		//	else
-		//		return;
-		//}
-
-		//gameObject.transform.LookAt(__path.vectorPath[__currentWaypoint]);
-		//Vector3 dir = (__path.vectorPath[__currentWaypoint] - transform.position).normalized * speed * Time.deltaTime;
-		//transform.Translate(dir);
 
 		//if(Vector3.Distance(transform.position, __path.vectorPath[__currentWaypoint]) < __waypointDistance)
 		//{
