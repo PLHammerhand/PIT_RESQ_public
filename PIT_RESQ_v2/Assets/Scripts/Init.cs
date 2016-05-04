@@ -7,12 +7,30 @@ public class Init : MonoBehaviour
 
 	void Start()
 	{
-		LevelMaster.Instance.Initialize();
+		TimeManager.Instance.Init();
+		CostsManager.Instance.Init();
+		InputManager.Instance.Init();
 
-		BuildingManager.Instance.Initialize();
+		LevelMaster.Instance.Init();
+
+		BuildingManager.Instance.Init();
 		BuildingManager.Instance.constructionLayer = constructionLayer;
 
-		GUIManager.Instance.Initialize();
+		GUIManager.Instance.Init();
+	}
 
+	void Update()
+	{
+		if(GUIManager.Instance.ready)
+		{
+			__StartGame();
+
+			Destroy(gameObject);
+		}
+	}
+
+	private void __StartGame()
+	{
+		BuildingManager.Instance.Money = 500;
 	}
 }

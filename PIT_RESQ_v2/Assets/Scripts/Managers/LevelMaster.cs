@@ -4,16 +4,27 @@ using System.Collections.Generic;
 
 public class LevelMaster : Singleton<LevelMaster>
 {
-	public Transform            candyshopPosition;
-	public List<Wave>           waves;
-	public GameObject           gemPrefab;
+	public float										spawnDelay				= 2f;
+	public float										waveDelay				= 20f;
+	public Transform									candyshopPosition;
+	public Waves										waves;
+	public EnemySpawn                                   enemySpawn;
+	public GameObject								    gemPrefab;
 
-	private Candyshop			__candyshop;
+	private int                                         __enemyTypeNumber		= 0;
+	private int											__enemyNumber			= 0;
+	private bool										__spawning              = false;
+	private float									    __nextSpawnTime;
+	private float									    __nextWaveTime;
+	private Wave									    __currentWave;
+	private Candyshop									__candyshop;
+	private GameObject								    __enemyToSpawn;
 	
 	//	Properties
-	private int                 __gems					= 5;
-	private int					__score;
-	private int					__wave;
+	private int											__gems					= 5;
+	private int											__score;
+	private int											__wave;
+	private bool									    __gameplay				= false;
 	
 	public int WaveNumber
 	{
@@ -37,8 +48,7 @@ public class LevelMaster : Singleton<LevelMaster>
 		{
 			__score = value;
 
-			//	TODO:	check if score counting works
-			//GUIManager.Instance.Score = __score;
+			GUIManager.Instance.Score = __score;
 		}
 	}
 
@@ -60,28 +70,104 @@ public class LevelMaster : Singleton<LevelMaster>
 		}
 	}
 
+	public bool Gameplay
+	{
+		get
+		{
+			return (TimeManager.Instance.gameplayState && __gameplay);
+		}
+	}
+
 
 	void Update()
 	{
 		if(!ready)
-			Initialize();
+			Init();
+
+		if(TimeManager.Instance.gameplayState && __gameplay)
+		{
+			if(__spawning)
+			{
+				if(__nextSpawnTime <= 0f)
+					__SpawnEnemy();
+				else
+					__nextSpawnTime -= Time.deltaTime;
+			}
+			else
+			{
+				__nextWaveTime -= Time.deltaTime;
+
+				if(__nextWaveTime <= 0f)
+				{
+					__spawning = true;
+					__nextWaveTime = waveDelay;
+					GUIManager.Instance.Wave++;
+				}
+				else
+					GUIManager.Instance.NextWaveTime = (int)__nextWaveTime;
+			}
+		}
 	}
 
-	public void Initialize()
+	public void Init()
 	{
 		if(GUIManager.Instance.ready)
 		{
-			__CalculateMaxEnemyTypes();
-
 			gemPrefab = Resources.Load("Gem") as GameObject;
 			GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(gemPrefab, Gems);
 
+			waves = GameObject.FindObjectOfType<Waves>();
+			enemySpawn = GameObject.FindObjectOfType<EnemySpawn>();
 			__candyshop = GameObject.FindObjectOfType<Candyshop>();
 			__candyshop.gems = __gems;
 			candyshopPosition = __candyshop.gameObject.transform;
 
+			__nextSpawnTime = spawnDelay;
+			__nextWaveTime = waveDelay;
+
+			//__CalculateMaxEnemyTypes();
+
 			ready = true;
 		}
+	}
+
+	public void StartNextWave()
+	{
+		if(WaveNumber < waves.levelWaves.Length)
+		{
+			__currentWave = waves.levelWaves[WaveNumber];
+			__nextSpawnTime = spawnDelay;
+			__spawning = true;
+			__gameplay = true;
+
+			WaveNumber++;
+		}
+		else
+			__EndGame();
+	}
+
+	private void __SpawnEnemy()
+	{
+		__nextSpawnTime = spawnDelay;
+
+		__enemyToSpawn = GlobalObjectPoolManager.Instance.GetGameObject(__currentWave.enemies[__enemyTypeNumber]);
+		__enemyToSpawn.transform.position = enemySpawn.transform.position;
+		__enemyToSpawn.transform.rotation = enemySpawn.transform.rotation;
+		__enemyToSpawn.SetActive(true);
+
+		if(__enemyNumber > __currentWave.enemiesCount[__enemyTypeNumber] - 1)
+		{
+			if(__enemyTypeNumber >= __currentWave.enemies.Length - 1)
+			{
+				__enemyNumber = 0;
+				__enemyTypeNumber = 0;
+				__spawning = false;
+			}
+			else
+				__enemyTypeNumber++;
+		}
+		else
+			__enemyNumber++;
 	}
 
 	public void EnemyDestroyed(GameObject enemy, bool gem)
@@ -106,18 +192,19 @@ public class LevelMaster : Singleton<LevelMaster>
 
 		Dictionary<GameObject, int> maxEnemies = new Dictionary<GameObject, int>();
 
-		foreach(Wave w in waves.enemies)
+		foreach(Wave w in waves.levelWaves)
 		{
 			int outInt;
 
-			if(maxEnemies.TryGetValue(w.enemy, out outInt))
+			for(int i = 0; i < w.enemies.Length; i++)
 			{
-				if(outInt < w.enemyCount)
-					outInt = w.enemyCount;
-			}
-			else
-			{
-				maxEnemies.Add(w.enemy, w.enemyCount);
+				if(maxEnemies.TryGetValue(w.enemies[i], out outInt))
+				{
+					if(outInt < w.enemiesCount[i])
+						outInt = w.enemiesCount[i];
+				}
+				else
+					maxEnemies.Add(w.enemies[i], w.enemiesCount[i]);
 			}
 		}
 

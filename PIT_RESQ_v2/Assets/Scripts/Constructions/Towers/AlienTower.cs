@@ -4,10 +4,33 @@ using System.Collections;
 
 public class AlienTower : BaseTower
 {
-	public int						damageLevel		= 1;
-	public int						rangeLevel		= 1;
+	public int DamageLevel
+	{
+		get
+		{
+			return __damageLevel;
+		}
+		set
+		{
+			__damage = damage + (5 * __damageLevel);
 
-	private List<GameObject>        __targets;
+			__damageLevel = value;
+		}
+	}
+
+	public int RangeLevel
+	{
+		get
+		{
+			return __rangeLevel;
+		}
+		set
+		{
+			_capsuleCollider.radius = range + (0.5f * __rangeLevel);
+
+			__rangeLevel = value;
+		}
+	}
 
 	public int LaserCount
 	{
@@ -17,11 +40,19 @@ public class AlienTower : BaseTower
 		}
 	}
 
+	private int						__damageLevel				= 1;
+	private int						__rangeLevel				= 1;
+	private int                     __damage;
+
+	private List<GameObject>        __targets;
 	private List<LineRenderer>		__lasers;
+
 
 	void Awake()
 	{
+		__damage = damage;
 		__lasers = new List<LineRenderer>();
+		__targets = new List<GameObject>();
 	}
 
 	protected override void Start()
@@ -33,12 +64,64 @@ public class AlienTower : BaseTower
 
 	protected override void Update()
 	{
-		base.Update();
+		if(_targetsList.Count > 0)
+		{
+			if(__targets.Count < __lasers.Count)
+			{
+				GameObject go = _NextTarget();
+
+				if(go != null)
+				{
+					__targets.Add(go);
+					_targetsList.RemoveAt(0);
+				}
+				else
+					_targetsList = new List<GameObject>();
+            }
+		}
+
+		if(__targets.Count > 0)
+			Fire();
 	}
+
+	void LateUpdate()
+	{
+		List<GameObject> newTargets = new List<GameObject>();
+
+		foreach(GameObject go in __targets)
+		{
+			if(go.activeInHierarchy)
+				newTargets.Add(go);
+		}
+
+		__targets = newTargets;
+	}
+
+	//	TODO	change system to be more efective
 
 	public override void Fire()
 	{
+		int i = 0;
+		bool stop = false;
 
+		do
+		{
+			__lasers[i].SetVertexCount(2);
+			__lasers[i].SetPosition(0, muzzle[0].position);
+			__lasers[i].SetPosition(1, __targets[i].transform.position);
+
+			i++;
+
+			if(i == __lasers.Count || i == __targets.Count)
+				stop = true;
+			
+		} while(!stop);
+	}
+
+	private void __HoldFire()
+	{
+		foreach(LineRenderer lr in __lasers)
+			lr.enabled = false;
 	}
 
 	public void AddLaser()

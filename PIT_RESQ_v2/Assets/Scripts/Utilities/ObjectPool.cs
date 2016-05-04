@@ -17,8 +17,8 @@ public class ObjectPool : MonoBehaviour
 		for(int i = 0; i < count; i++)
 		{
 			GameObject go = Instantiate(objectPrefab) as GameObject;
-			go.SetActive(false);
 			__objects.Add(go);
+			go.SetActive(false);
 		}
 	}
 

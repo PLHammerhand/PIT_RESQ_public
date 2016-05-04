@@ -4,6 +4,8 @@ using System;
 
 public class RobotTower : ProjectileTower
 {
+	public static int           Level                   = 1;
+
 	public float                fireAngle               = 4f;
 	[Range(20f, 50f)]
 	public float                rotationSpeed           = 20f;
@@ -24,6 +26,7 @@ public class RobotTower : ProjectileTower
 
 		projectilePrefab = Resources.Load("Towers/Projectiles/RobotBullet") as GameObject;
 
+		if(gameObject.GetComponent<ObjectPool>() == null)
 		Init();
 	}
 
@@ -36,42 +39,47 @@ public class RobotTower : ProjectileTower
 
 	protected override void Update()
 	{
-
-		if(_target != null)
+		if(_nextFireTime <= 0f)
 		{
-			Debug.Log("Target: " + _target.GetInstanceID());
-
-			if(_target.activeInHierarchy)
+			if(_target != null)
 			{
-				__rotator.LookAt(_target.transform);
-				__rotator.eulerAngles = new Vector3(0, __rotator.eulerAngles.y, 0);
-				__aimer.LookAt(_target.transform);
+				Debug.Log("Target: " + _target.GetInstanceID());
 
-				if(Vector3.Angle(transform.position, _target.transform.position) < fireAngle)
+				if(_target.activeInHierarchy)
 				{
-					__AimAtTarget();
-					Fire();
+					__rotator.LookAt(_target.transform);
+					__rotator.eulerAngles = new Vector3(0, __rotator.eulerAngles.y, 0);
+					__aimer.LookAt(_target.transform);
+
+					if(Vector3.Angle(transform.position, _target.transform.position) < fireAngle)
+					{
+						__AimAtTarget();
+						Fire();
+					}
+					else
+						__Rotate();
 				}
 				else
-					__Rotate();
-			}
-			else
-			{
-				_targetsList.Remove(_target);
-				_target = _NextTarget();
+				{
+					_targetsList.Remove(_target);
+					_target = _NextTarget();
+				}
 			}
 		}
+		else
+			_nextFireTime -= Time.deltaTime;
 	}
 
 	public override void Fire()
 	{
-		GameObject bullet = GlobalObjectPoolManager.Instance.GetGameObject(projectilePrefab);
+		GameObject bullet = _projectiles.GetObject();
 		bullet.transform.position = muzzle[__currentMuzzleNo].transform.position;
 		bullet.transform.rotation = muzzle[__currentMuzzleNo].transform.rotation;
 		__SetBulletProperties(bullet.GetComponent<RobotBullet>());
 		bullet.SetActive(true);
 
 		__NextMuzzleIndex();
+		_nextFireTime = _refireTime;
 	}
 
 	private void __SetBulletProperties(RobotBullet bullet)

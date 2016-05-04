@@ -4,6 +4,10 @@ using System;
 
 public class MageTower : ProjectileTower
 {
+	public int                  level;
+	public GameObject           leftUpgrade;
+	public GameObject           rightUpgrade;
+
 	void Awake()
 	{
 		projectilePrefab = Resources.Load("Towers/Projectiles/MageMissile") as GameObject;
@@ -18,12 +22,15 @@ public class MageTower : ProjectileTower
 
 	public override void Fire()
 	{
-		GameObject go = GlobalObjectPoolManager.Instance.GetGameObject(projectilePrefab);
+		GameObject go = _projectiles.GetObject();
 		go.transform.position = muzzle[0].transform.position;
+		__SetMissleProperties(go.GetComponent<MageMissle>());
+		go.SetActive(true);
 	}
 
 	private void __SetMissleProperties(MageMissle missle)
 	{
 		_SetProjectileProperties(missle);
+		missle.Target = _target;
 	}
 }

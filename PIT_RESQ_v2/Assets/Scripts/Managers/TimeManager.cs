@@ -17,4 +17,9 @@ public class TimeManager : Singleton<TimeManager>
 			__gameplayState = value;
 		}
 	}
+
+	public void Init()
+	{
+		ready = true;
+	}
 }

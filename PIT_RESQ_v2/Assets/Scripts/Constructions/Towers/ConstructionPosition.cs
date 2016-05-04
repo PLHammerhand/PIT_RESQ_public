@@ -20,14 +20,21 @@ public class ConstructionPosition : MonoBehaviour
 		}
 		set
 		{
-			__constructedTower = value;
+			if(value != null)
+			{
+				if(__constructedTower != null)
+					__constructedTower.towerPosition = null;
 
-			if(boostFirerate)
-				__constructedTower.firerate *= multiplayerFirerate;
-			if(boostDamage)
-				__constructedTower.damage = (int)(__constructedTower.damage * multiplayerDamage);
-			if(boostRange)
-				__constructedTower.range *= multiplayerRange;
+				__constructedTower = value;
+				__constructedTower.towerPosition = this;
+
+				if(boostFirerate)
+					__constructedTower.firerate *= multiplayerFirerate;
+				if(boostDamage)
+					__constructedTower.damage = (int)(__constructedTower.damage * multiplayerDamage);
+				if(boostRange)
+					__constructedTower.range *= multiplayerRange;
+			}
         }
 	}
 

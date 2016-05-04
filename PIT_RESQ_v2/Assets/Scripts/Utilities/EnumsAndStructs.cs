@@ -1,18 +1,31 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
 [System.Serializable]
 public struct Wave
 {
-	public GameObject           enemy;
-	public int                  enemyCount;
+	public GameObject[]				enemies;
+	public int[]					enemiesCount;
 }
 
 public enum BuildingState
 {
 	GAMEPLAY,
 	CONSTRUCTION,
-	UPGRADE
+	UPGRADE,
+	STOP
+}
+
+public enum TowerAttribute
+{
+	DAMAGE,
+	FIRERATE,
+	RANGE,
+	LASER,
+	PROJECTILE,
+	POSITION,
+	SPEED
 }
 
 public enum Tower

@@ -27,27 +27,50 @@ public class GlobalObjectPoolManager : Singleton<GlobalObjectPoolManager>
 		else return __CreateKeyListPair(pooled);
 	}
 
-	public void AddGameObject(GameObject go)
+	public void AddGameObject(GameObject prefab, GameObject go)
 	{
 		List<GameObject> list;
 		go.SetActive(false);
 
-		if(__objects.TryGetValue(go, out list))
+		if(__objects.TryGetValue(prefab, out list))
 			list.Add(go);
 		else
-			__CreateKeyListPair(go);
+			__CreateKeyListPair(prefab, go);
 	}
 
-	private GameObject __CreateKeyListPair(GameObject go)
+	public bool CheckIfPooled(GameObject prefab, GameObject go)
+	{
+		List<GameObject> list;
+
+		if(__objects.TryGetValue(prefab, out list))
+		{
+			if(list != null && list.Contains(go))
+				return true;
+		}
+
+		return false;
+	}
+
+	private GameObject __CreateKeyListPair(GameObject prefab, GameObject go = null)
 	{
 		List<GameObject> list = new List<GameObject>();
-		GameObject tmpGO = Instantiate(go) as GameObject;
-		tmpGO.name = go.name + " " + tmpGO.GetInstanceID();
-		list.Add(tmpGO);
-		tmpGO.SetActive(false);
-		__objects.Add(go, list);
 
-		return go;
+		if(go == null)
+		{
+			GameObject tmpGO = Instantiate(prefab) as GameObject;
+			tmpGO.name = prefab.name + " " + tmpGO.GetInstanceID();
+			list.Add(tmpGO);
+			tmpGO.SetActive(false);
+		}
+		else
+		{
+			go.SetActive(false);
+			list.Add(go);
+		}
+
+		__objects.Add(prefab, list);
+
+		return prefab;
 	}
 
 	public void CreateMultipleObjectsInPool(GameObject go, int number)

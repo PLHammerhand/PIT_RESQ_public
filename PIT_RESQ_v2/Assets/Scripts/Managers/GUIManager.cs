@@ -4,8 +4,6 @@ using System.Collections;
 
 public class GUIManager : Singleton<GUIManager>
 {
-	//	TODO:	make it more readable
-
 	//	--	Panels
 	//	--	--	Info
 	private UIPanel				__infoPanel;
@@ -13,12 +11,16 @@ public class GUIManager : Singleton<GUIManager>
 	private UIPanel				__superpowersPanel;
 	//	--	--	General
 	private UIPanel				__generalPanel;
-	//	--	--	Upgrades
-	private UIPanel				__alienUpgradePanel;
-	private UIPanel				__mageUpgradePanel;
-	private UIPanel				__robotUpgradePanel;
+	//	--	--	Upgrades	(tweens only)
+	private TweenPosition		__alienUpgradePanel;
+	private TweenPosition       __mageUpgradePanel;
+	private TweenPosition       __robotUpgradePanel;
 
 	//	--	Buttons
+	//	--	--	Constructions
+	private UIButton            __alienButton;
+	private UIButton            __mageButton;
+	private UIButton            __robotButton;
 	//	--	--	Superpowers
 	private UIButton			__courierButton;
 	//	--	--	Upgrades
@@ -72,7 +74,17 @@ public class GUIManager : Singleton<GUIManager>
 		set
 		{
 			__wave = value;
+
+			__nextWaveLabel.text = "Incoming!";
 			__waveLabel.text = "" + __wave;
+		}
+	}
+
+	public int NextWaveTime
+	{
+		set
+		{
+			__nextWaveLabel.text = "" + value;
 		}
 	}
 
@@ -99,9 +111,12 @@ public class GUIManager : Singleton<GUIManager>
 		{
 			__money = value;
 			__moniesLabel.text = "" + __money;
+
+			__CheckFunds();
 		}
 	}
 
+	//	=====	METHODS
 
 	void Awake()
 	{
@@ -111,11 +126,137 @@ public class GUIManager : Singleton<GUIManager>
 	void Update()
 	{
 		if(__uiCamera == null)
-			Initialize();
+			Init();
+	}
+
+	public void OpenUpgradePanel(Tower tower)
+	{
+		int upgrade;
+
+		switch(tower)
+		{
+			case Tower.ALIEN:
+				AlienTower clickedTower = BuildingManager.Instance.ClickedPosition.ConstructedTower as AlienTower;
+
+				upgrade = (clickedTower.DamageLevel + 1) * CostsManager.Instance.alienDamageUpgrade;
+				__alienDamageUpgradeLabel.text = "" + upgrade;
+
+				if(__money < upgrade)
+					__alienDamageUpgradeButton.isEnabled = false;
+				else
+					__alienDamageUpgradeButton.isEnabled = true;
+
+				upgrade = (clickedTower.LaserCount + 1) * CostsManager.Instance.alienLaserUpgrade;
+				__alienLaserUpgradeLabel.text = "" + upgrade;
+
+				if(__money < upgrade)
+					__alienLaserUpgradeButton.isEnabled = false;
+				else
+					__alienLaserUpgradeButton.isEnabled = true;
+
+				upgrade = (clickedTower.RangeLevel + 1) * CostsManager.Instance.alienRangeUpgrade;
+				__alienRangeUpgradeLabel.text = "" + upgrade;
+
+				if(__money < upgrade)
+					__alienRangeUpgradeButton.isEnabled = false;
+				else
+					__alienRangeUpgradeButton.isEnabled = true;
+
+				__alienUpgradePanel.Play(true);
+				__mageUpgradePanel.Play(false);
+				__robotUpgradePanel.Play(false);
+				break;
+			case Tower.MAGE:
+				upgrade = ((BuildingManager.Instance.ClickedPosition.ConstructedTower as MageTower).level + 1) * CostsManager.Instance.mageUpgrade;
+				__mageLeftUpgradeLabel.text = "" + upgrade;
+				__mageRightUpgradeLabel.text = "" + upgrade;
+
+				if(__money < upgrade)
+				{
+					__mageLeftUpgradeButton.isEnabled = false;
+					__mageRightUpgradeButton.isEnabled = false;
+				}
+				else
+				{
+					__mageLeftUpgradeButton.isEnabled = true;
+					__mageRightUpgradeButton.isEnabled = true;
+				}
+
+				__mageUpgradePanel.Play(true);
+				__alienUpgradePanel.Play(false);
+				__robotUpgradePanel.Play(false);
+				break;
+			case Tower.ROBOT:
+				upgrade = CostsManager.Instance.robotTowerUpgrade * RobotTower.Level;
+
+				if(__money < CostsManager.Instance.robotTowerUpgrade * RobotTower.Level)
+					__robotUpgradeButton.isEnabled = false;
+				else
+					__robotUpgradeButton.isEnabled = true;
+
+				__robotUpgradePanel.Play(true);
+				__alienUpgradePanel.Play(false);
+				__mageUpgradePanel.Play(false);
+				break;
+		}
+	}
+
+	public void CloseUpgradePanels()
+	{
+		__alienUpgradePanel.Play(false);
+		__mageUpgradePanel.Play(false);
+		__robotUpgradePanel.Play(false);
+	}
+
+	public void SendNextWave()
+	{
+		LevelMaster.Instance.StartNextWave();
+		Wave++;
+	}
+
+	public void DisableInputManager()
+	{
+		InputManager.Instance.enableInput = false;
+	}
+
+	public void EnableInputManager()
+	{
+		InputManager.Instance.enableInput = true;
+	}
+
+	public void UpgradeTower(GameObject button)
+	{
+		string name = button.name;
+
+		switch(name)
+		{
+			case "Upgrade":
+				BuildingManager.Instance.UpgradeRobotTower();
+				break;
+			case "Left":
+				BuildingManager.Instance.UpgradeMageTower(true);
+				break;
+			case "Right":
+				BuildingManager.Instance.UpgradeMageTower(false);
+				break;
+			case "Damage":
+				BuildingManager.Instance.UpgradeAlienTower(TowerAttribute.DAMAGE);
+				break;
+			case "Laser":
+				BuildingManager.Instance.UpgradeAlienTower(TowerAttribute.LASER);
+				break;
+			case "Range":
+				BuildingManager.Instance.UpgradeAlienTower(TowerAttribute.RANGE);
+				break;
+		}
+
+		CloseUpgradePanels();
 	}
 
 	public void BuildTower(GameObject button)
 	{
+		CloseUpgradePanels();
+
 		if(BuildingManager.Instance.BuildingState != BuildingState.CONSTRUCTION)
 		{
 			switch(button.name)
@@ -137,17 +278,22 @@ public class GUIManager : Singleton<GUIManager>
 			BuildingManager.Instance.BuildingState = BuildingState.GAMEPLAY;
 	}
 
-	public void Initialize()
+	public void Init()
 	{
 		__uiCamera = GameObject.FindObjectOfType<UICamera>();
 
 		if(__uiCamera != null)
 		{
 			//	Constructions
+			__alienButton = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/AlienButton").GetComponent<UIButton>();
+			__mageButton = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/MageButton").GetComponent<UIButton>();
+			__robotButton = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/RobotButton").GetComponent<UIButton>();
+
+			__alienCostLabel = __alienButton.transform.FindChild("Label").GetComponent<UILabel>();
+			__mageCostLabel = __mageButton.transform.FindChild("Label").GetComponent<UILabel>();
+			__robotCostLabel = __robotButton.transform.FindChild("Label").GetComponent<UILabel>();
+
 			__moniesLabel = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/Money").gameObject.GetComponent<UILabel>();
-			__alienCostLabel = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/AlienButton/Label").GetComponent<UILabel>();
-			__mageCostLabel = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/MageButton/Label").GetComponent<UILabel>();
-			__robotCostLabel = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/RobotButton/Label").GetComponent<UILabel>();
 
 			__infoPanel = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/Info").GetComponent<UIPanel>();
 			__towerNameLabel = __infoPanel.transform.FindChild("TowerName").GetComponent<UILabel>();
@@ -172,7 +318,7 @@ public class GUIManager : Singleton<GUIManager>
 
 			//	Upgrades
 			//	--	Alien
-			__alienUpgradePanel = __uiCamera.transform.FindChild("Upgrades/AlienUpgrade").GetComponent<UIPanel>();
+			__alienUpgradePanel = __uiCamera.transform.FindChild("Upgrades/AlienUpgrade").GetComponent<TweenPosition>();
 			__alienLaserUpgradeButton = __alienUpgradePanel.transform.FindChild("Laser").GetComponent<UIButton>();
 			__alienLaserUpgradeLabel = __alienLaserUpgradeButton.transform.FindChild("Label").GetComponent<UILabel>();
 			__alienDamageUpgradeButton = __alienUpgradePanel.transform.FindChild("Damage").GetComponent<UIButton>();
@@ -180,22 +326,47 @@ public class GUIManager : Singleton<GUIManager>
             __alienRangeUpgradeButton = __alienUpgradePanel.transform.FindChild("Range").GetComponent<UIButton>();
 			__alienRangeUpgradeLabel = __alienRangeUpgradeButton.transform.FindChild("Label").GetComponent<UILabel>();
 			//	--	Mage
-			__mageUpgradePanel = __uiCamera.transform.FindChild("Upgrades/MageUpgrade").GetComponent<UIPanel>();
+			__mageUpgradePanel = __uiCamera.transform.FindChild("Upgrades/MageUpgrade").GetComponent<TweenPosition>();
 			__mageLeftUpgradeButton = __mageUpgradePanel.transform.FindChild("Left").GetComponent<UIButton>();
 			__mageLeftUpgradeLabel = __mageLeftUpgradeButton.transform.FindChild("Label").GetComponent<UILabel>();
 			__mageRightUpgradeButton = __mageUpgradePanel.transform.FindChild("Right").GetComponent<UIButton>();
 			__mageRightUpgradeLabel = __mageRightUpgradeButton.transform.FindChild("Label").GetComponent<UILabel>();
+
 			//	-- Robot
-			__robotUpgradePanel = __uiCamera.transform.FindChild("Upgrades/RobotUpgrade").GetComponent<UIPanel>();
+			__robotUpgradePanel = __uiCamera.transform.FindChild("Upgrades/RobotUpgrade").GetComponent<TweenPosition>();
 			__robotUpgradeButton = __robotUpgradePanel.transform.FindChild("Upgrade").GetComponent<UIButton>();
 			__robotUpgradeLabel = __robotUpgradeButton.transform.FindChild("Label").GetComponent<UILabel>();
 
-			ready = true;
+			__alienUpgradePanel.Play(false);
+			__mageUpgradePanel.Play(false);
+			__robotUpgradePanel.Play(false);
 
 			UIButtonMessage[] btnsMsgs = __uiCamera.GetComponentsInChildren<UIButtonMessage>();
 
 			foreach(UIButtonMessage bm in btnsMsgs)
 				bm.target = Instance.gameObject;
+
+			ready = true;
+		}
+	}
+
+	private void __CheckFunds()
+	{
+		if(__money < CostsManager.Instance.baseTower)
+		{
+			__alienButton.isEnabled = false;
+			__mageButton.isEnabled = false;
+			__robotButton.isEnabled = false;
+		}
+		else
+		{
+			__alienButton.isEnabled = true;
+			__mageButton.isEnabled = true;
+
+			if(__money < (CostsManager.Instance.baseTower + (RobotTower.Level - 1) * CostsManager.Instance.robotTowerUpgrade))
+				__robotButton.isEnabled = false;
+			else
+				__robotButton.isEnabled = true;
 		}
 	}
 

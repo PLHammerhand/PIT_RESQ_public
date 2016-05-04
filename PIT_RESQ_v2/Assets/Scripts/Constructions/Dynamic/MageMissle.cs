@@ -6,7 +6,7 @@ public class MageMissle : Projectile
 	private GameObject              __target;
 
 	[HideInInspector]
-	public GameObject               target
+	public GameObject               Target
 	{
 		get
 		{
@@ -24,6 +24,9 @@ public class MageMissle : Projectile
 
 	protected override void Update()
 	{
+		if(__target == null)
+			_SelfDestroy();
+
 		if(!__target.activeInHierarchy)
 			_SelfDestroy();
 
@@ -31,6 +34,4 @@ public class MageMissle : Projectile
 
 		base.Update();
 	}
-
-	
 }

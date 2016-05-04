@@ -9,9 +9,11 @@ public abstract class BaseTower : MonoBehaviour
 	public float						firerate;
 	[HideInInspector]
 	public Transform[]					muzzle;
+	[HideInInspector]
+	public ConstructionPosition         towerPosition;
 
-	protected bool						_ready						= false;
 	protected GameObject				_target;
+	protected CapsuleCollider           _capsuleCollider;
 	protected List<GameObject>			_targetsList;
 
 
@@ -71,11 +73,6 @@ public abstract class BaseTower : MonoBehaviour
 					_target = null;
 			}
 		}
-	}
-
-	protected virtual void OnTriggerStay(Collider other)
-	{
-
 	}
 
 	protected GameObject _NextTarget()
