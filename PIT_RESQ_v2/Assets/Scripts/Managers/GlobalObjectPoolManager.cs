@@ -57,28 +57,27 @@ public class GlobalObjectPoolManager : Singleton<GlobalObjectPoolManager>
 
 		if(go == null)
 		{
-			GameObject tmpGO = Instantiate(prefab) as GameObject;
-			tmpGO.name = prefab.name + " " + tmpGO.GetInstanceID();
-			list.Add(tmpGO);
-			tmpGO.SetActive(false);
-		}
-		else
-		{
-			go.SetActive(false);
+			go = Instantiate(prefab) as GameObject;
+			go.name = prefab.name + " " + go.GetInstanceID();
 			list.Add(go);
 		}
+		else
+			list.Add(go);
 
 		__objects.Add(prefab, list);
 
-		return prefab;
+		return go;
 	}
 
-	public void CreateMultipleObjectsInPool(GameObject go, int number)
+	public void CreateMultipleObjectsInPool(GameObject go, int number, bool createActive = false)
 	{
 		List<GameObject> outList;
 
 		if(!__objects.TryGetValue(go, out outList))
-			__CreateKeyListPair(go);
+		{
+			__CreateKeyListPair(go).SetActive(createActive);
+			number--;
+		}
 
 		if(outList == null)
 			outList = new List<GameObject>();
@@ -88,7 +87,7 @@ public class GlobalObjectPoolManager : Singleton<GlobalObjectPoolManager>
 			GameObject tmpGO = Instantiate(go) as GameObject;
 			tmpGO.name = go.name + " " + tmpGO.GetInstanceID();
 			outList.Add(tmpGO);
-			tmpGO.SetActive(false);
+			tmpGO.SetActive(createActive);
 		}
 	}
 }

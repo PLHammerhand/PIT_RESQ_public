@@ -7,16 +7,16 @@ public class Init : MonoBehaviour
 
 	void Start()
 	{
-		TimeManager.Instance.Init();
-		CostsManager.Instance.Init();
-		InputManager.Instance.Init();
+		TimeManager.Instance.Initialize();
+		CostsManager.Instance.Initialize();
+		InputManager.Instance.Initialize();
 
-		LevelMaster.Instance.Init();
+		LevelMaster.Instance.Initialize();
 
-		BuildingManager.Instance.Init();
+		BuildingManager.Instance.Initialize();
 		BuildingManager.Instance.constructionLayer = constructionLayer;
 
-		GUIManager.Instance.Init();
+		GUIManager.Instance.Initialize();
 	}
 
 	void Update()

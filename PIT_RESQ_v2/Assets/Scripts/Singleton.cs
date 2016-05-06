@@ -62,6 +62,10 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         __applicationIsQuitting = true;
     }
 
+	public virtual void Initialize()
+	{
+	}
+
 	/// <summary>
 	/// NOT SAFE SINGLETON METHOD
 	/// Use only for reseting singletons or for OnDestroy() case

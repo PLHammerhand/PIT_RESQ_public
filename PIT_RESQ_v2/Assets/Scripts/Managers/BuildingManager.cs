@@ -83,7 +83,7 @@ public class BuildingManager : Singleton<BuildingManager>
 		constructionPositions = new List<ConstructionPosition>();
 	}
 
-	public void Init()
+	public override void Initialize()
 	{
 		robotTowerPrefabs = new List<GameObject>();
 
@@ -112,13 +112,11 @@ public class BuildingManager : Singleton<BuildingManager>
 		//__mageTowerUpgradeVisuals.SetActive(false);
 		//__robotTowerUpgradeVisuals.SetActive(false);
 
-		GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(alienTowerPrefab, 4);
-		GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(mageTowerPrefab, 4);
+		GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(alienTowerPrefab, 2);
+		GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(mageTowerPrefab, 2);
 
 		foreach(GameObject go in robotTowerPrefabs)
-			GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(go, 4);
-
-		//GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool();
+			GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(go, 2);
 
 		//GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(__alienBuildParticles, 2);
 		GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(__mageBuildParticles, 2);

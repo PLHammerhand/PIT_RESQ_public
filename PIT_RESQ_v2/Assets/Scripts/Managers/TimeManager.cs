@@ -18,7 +18,7 @@ public class TimeManager : Singleton<TimeManager>
 		}
 	}
 
-	public void Init()
+	public override void Initialize()
 	{
 		ready = true;
 	}

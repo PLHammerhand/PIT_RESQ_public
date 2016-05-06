@@ -13,7 +13,7 @@ public class CostsManager : Singleton<CostsManager>
 	public int                  alienLaserUpgrade			= 50;
 	public int                  alienRangeUpgrade			= 20;
 
-	public void Init()
+	public override void Initialize()
 	{
 		ready = true;
 	}

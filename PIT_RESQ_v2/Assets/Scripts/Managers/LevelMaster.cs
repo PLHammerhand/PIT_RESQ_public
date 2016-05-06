@@ -13,9 +13,9 @@ public class LevelMaster : Singleton<LevelMaster>
 
 	private int                                         __enemyTypeNumber		= 0;
 	private int											__enemyNumber			= 0;
+	private float									    __nextSpawnTime			= 0;
+	private float									    __nextWaveTime			= 0;
 	private bool										__spawning              = false;
-	private float									    __nextSpawnTime;
-	private float									    __nextWaveTime;
 	private Wave									    __currentWave;
 	private Candyshop									__candyshop;
 	private GameObject								    __enemyToSpawn;
@@ -76,29 +76,52 @@ public class LevelMaster : Singleton<LevelMaster>
 		{
 			return (TimeManager.Instance.gameplayState && __gameplay);
 		}
+
+		private set
+		{
+			__gameplay = value;
+
+			if(TimeManager.Instance.gameplayState && __gameplay)
+				GUIManager.Instance.Gameplay = true;
+			else
+				GUIManager.Instance.Gameplay = false;
+		}
 	}
 
 
 	void Update()
 	{
 		if(!ready)
-			Init();
+			Initialize();
 
 		if(TimeManager.Instance.gameplayState && __gameplay)
 		{
 			if(__spawning)
 			{
+				Debug.Log("> Spawning...");
 				if(__nextSpawnTime <= 0f)
 					__SpawnEnemy();
 				else
+				{
 					__nextSpawnTime -= Time.deltaTime;
+					Debug.Log(">> Next spawn time countdown");
+				}
 			}
 			else
 			{
+				Debug.Log("> Waiting for wave...");
 				__nextWaveTime -= Time.deltaTime;
 
 				if(__nextWaveTime <= 0f)
 				{
+					Debug.Log(">> Wave going!...");
+					if(WaveNumber >= waves.levelWaves.Length - 1)
+					{
+						__gameplay = false;
+						Debug.Log("End game!");
+						return;
+					}
+
 					__spawning = true;
 					__nextWaveTime = waveDelay;
 					GUIManager.Instance.Wave++;
@@ -109,7 +132,7 @@ public class LevelMaster : Singleton<LevelMaster>
 		}
 	}
 
-	public void Init()
+	public override void Initialize()
 	{
 		if(GUIManager.Instance.ready)
 		{
@@ -148,14 +171,14 @@ public class LevelMaster : Singleton<LevelMaster>
 
 	private void __SpawnEnemy()
 	{
+		Debug.Log(">> Spawning enemy...");
 		__nextSpawnTime = spawnDelay;
 
 		__enemyToSpawn = GlobalObjectPoolManager.Instance.GetGameObject(__currentWave.enemies[__enemyTypeNumber]);
 		__enemyToSpawn.transform.position = enemySpawn.transform.position;
 		__enemyToSpawn.transform.rotation = enemySpawn.transform.rotation;
-		__enemyToSpawn.SetActive(true);
 
-		if(__enemyNumber > __currentWave.enemiesCount[__enemyTypeNumber] - 1)
+		if(__enemyNumber >= __currentWave.enemiesCount[__enemyTypeNumber] - 1)
 		{
 			if(__enemyTypeNumber >= __currentWave.enemies.Length - 1)
 			{
@@ -168,6 +191,8 @@ public class LevelMaster : Singleton<LevelMaster>
 		}
 		else
 			__enemyNumber++;
+
+		__enemyToSpawn.SetActive(true);
 	}
 
 	public void EnemyDestroyed(GameObject enemy, bool gem)
@@ -214,6 +239,7 @@ public class LevelMaster : Singleton<LevelMaster>
 
 	private void __EndGame(bool victory = false)
 	{
+		__gameplay = false;
 		Debug.Log("Game over, status: " + (victory ? "victory" : "defeat"));
 	}
 }

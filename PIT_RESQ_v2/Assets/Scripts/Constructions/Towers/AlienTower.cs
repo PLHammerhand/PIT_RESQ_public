@@ -62,13 +62,19 @@ public class AlienTower : BaseTower
 		AddLaser();
 	}
 
+	//	TODO	repair whole Alien Tower system
+
 	protected override void Update()
 	{
 		if(_targetsList.Count > 0)
 		{
+			Debug.Log("> Got targets!");
 			if(__targets.Count < __lasers.Count)
 			{
+				Debug.Log(">> Laser's ready!");
 				GameObject go = _NextTarget();
+
+				Debug.Log(">> go: " + go.name);
 
 				if(go != null)
 				{
@@ -82,20 +88,22 @@ public class AlienTower : BaseTower
 
 		if(__targets.Count > 0)
 			Fire();
+		else
+			__HoldFire();
 	}
 
-	void LateUpdate()
-	{
-		List<GameObject> newTargets = new List<GameObject>();
+	//void LateUpdate()
+	//{
+	//	List<GameObject> newTargets = new List<GameObject>();
 
-		foreach(GameObject go in __targets)
-		{
-			if(go.activeInHierarchy)
-				newTargets.Add(go);
-		}
+	//	foreach(GameObject go in __targets)
+	//	{
+	//		if(go.activeInHierarchy)
+	//			newTargets.Add(go);
+	//	}
 
-		__targets = newTargets;
-	}
+	//	__targets = newTargets;
+	//}
 
 	//	TODO	change system to be more efective
 
@@ -115,6 +123,7 @@ public class AlienTower : BaseTower
 			if(i == __lasers.Count || i == __targets.Count)
 				stop = true;
 			
+			Debug.Log(">>> Firing!\t" + stop);
 		} while(!stop);
 	}
 
@@ -133,5 +142,9 @@ public class AlienTower : BaseTower
 		line.SetColors(Color.red, Color.red);
 		line.SetWidth(0.25f, 0.25f);
 		line.enabled = false;
+
+		go.transform.position = muzzle[0].position;
+		go.transform.SetParent(muzzle[0]);
+		go.name = "Laser " + LaserCount;
 	}
 }

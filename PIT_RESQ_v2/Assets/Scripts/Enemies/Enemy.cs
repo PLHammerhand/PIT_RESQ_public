@@ -17,6 +17,7 @@ public class Enemy : MonoBehaviour
 
 	private bool                __returning;
 	private GameObject			__gem;
+	private GameObject          __smoke;
 
 	public bool GotGem
 	{
@@ -39,6 +40,7 @@ public class Enemy : MonoBehaviour
 	{
 		__currentHealth = health;
 		__gem = transform.FindChild("Gem").gameObject;
+		__smoke = transform.FindChild("Smoke").gameObject;
 		__seeker = gameObject.GetComponent<Seeker>();
 	}
 

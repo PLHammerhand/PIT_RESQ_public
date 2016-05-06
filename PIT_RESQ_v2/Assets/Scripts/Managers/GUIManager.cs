@@ -7,8 +7,8 @@ public class GUIManager : Singleton<GUIManager>
 	//	--	Panels
 	//	--	--	Info
 	private UIPanel				__infoPanel;
-	//	--	--	Superpowers
-	private UIPanel				__superpowersPanel;
+	//	--	--	Superpowers	(tweens only)
+	private TweenPosition		__superpowersPanel;
 	//	--	--	General
 	private UIPanel				__generalPanel;
 	//	--	--	Upgrades	(tweens only)
@@ -17,6 +17,8 @@ public class GUIManager : Singleton<GUIManager>
 	private TweenPosition       __robotUpgradePanel;
 
 	//	--	Buttons
+	//	--	--	Menu
+	private UIButton            __nextWaveButton;
 	//	--	--	Constructions
 	private UIButton            __alienButton;
 	private UIButton            __mageButton;
@@ -116,6 +118,18 @@ public class GUIManager : Singleton<GUIManager>
 		}
 	}
 
+	public bool Gameplay
+	{
+		set
+		{
+			__alienButton.isEnabled = value;
+			__mageButton.isEnabled = value;
+			__robotButton.isEnabled = value;
+
+			__nextWaveButton.isEnabled = value;
+		}
+	}
+
 	//	=====	METHODS
 
 	void Awake()
@@ -126,7 +140,7 @@ public class GUIManager : Singleton<GUIManager>
 	void Update()
 	{
 		if(__uiCamera == null)
-			Init();
+			Initialize();
 	}
 
 	public void OpenUpgradePanel(Tower tower)
@@ -278,7 +292,7 @@ public class GUIManager : Singleton<GUIManager>
 			BuildingManager.Instance.BuildingState = BuildingState.GAMEPLAY;
 	}
 
-	public void Init()
+	public virtual void Initialize()
 	{
 		__uiCamera = GameObject.FindObjectOfType<UICamera>();
 
@@ -303,7 +317,7 @@ public class GUIManager : Singleton<GUIManager>
 			__towerFirerateLabel = __infoPanel.transform.FindChild("Firerate").GetComponent<UILabel>();
 
 			//	Superpowers
-			__superpowersPanel = __uiCamera.transform.FindChild("Superpowers/SuperpowerPanel").GetComponent<UIPanel>();
+			__superpowersPanel = __uiCamera.transform.FindChild("Superpowers/SuperpowerPanel").GetComponent<TweenPosition>();
 			__courierButton = __superpowersPanel.transform.FindChild("Courier").GetComponent<UIButton>();
 			__courierTimer = __superpowersPanel.transform.FindChild("Courier/Timer").GetComponent<UILabel>();
 
@@ -314,7 +328,8 @@ public class GUIManager : Singleton<GUIManager>
 			__scoreLabel = __uiCamera.transform.FindChild("GameplayInfo/InfoPanel/Score").GetComponent<UILabel>();
 			__waveLabel = __uiCamera.transform.FindChild("GameplayInfo/InfoPanel/Wave").GetComponent<UILabel>();
 			//	Menu
-			__nextWaveLabel = __uiCamera.transform.FindChild("Menu/MenuPanel/NextWave/Label").GetComponent<UILabel>();
+			__nextWaveButton = __uiCamera.transform.FindChild("Menu/MenuPanel/NextWave").GetComponent<UIButton>();
+            __nextWaveLabel = __nextWaveButton.transform.FindChild("Label").GetComponent<UILabel>();
 
 			//	Upgrades
 			//	--	Alien
@@ -340,6 +355,7 @@ public class GUIManager : Singleton<GUIManager>
 			__alienUpgradePanel.Play(false);
 			__mageUpgradePanel.Play(false);
 			__robotUpgradePanel.Play(false);
+			__superpowersPanel.Play(false);
 
 			UIButtonMessage[] btnsMsgs = __uiCamera.GetComponentsInChildren<UIButtonMessage>();
 

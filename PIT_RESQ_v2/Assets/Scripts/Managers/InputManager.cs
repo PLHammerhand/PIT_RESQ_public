@@ -36,7 +36,7 @@ public class InputManager : Singleton<InputManager>
 
 	}
 
-	public void Init()
+	public override void Initialize()
 	{
 		ready = true;
 	}
