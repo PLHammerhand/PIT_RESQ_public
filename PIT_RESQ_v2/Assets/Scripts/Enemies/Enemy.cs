@@ -4,19 +4,19 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour
 {
-	public int					health;
+	public int                  health;
 	public int                  value;
-	public float				speed;
-	public Transform			target;
+	public float                speed;
+	public Transform            target;
 
 	private int                 __currentWaypoint;
 	private int                 __currentHealth;
-	private float               __waypointDistance		= 0.2f;
+	private float               __waypointDistance      = 0.2f;
 	private Path                __path;
 	private Seeker              __seeker;
 
 	private bool                __returning;
-	private GameObject			__gem;
+	private GameObject          __gem;
 	private GameObject          __smoke;
 
 	public bool GotGem
@@ -70,13 +70,16 @@ public class Enemy : MonoBehaviour
 				return;
 		}
 
-		Vector3 dir = (__path.vectorPath[__currentWaypoint] - transform.position).normalized * speed * Time.deltaTime;
-		transform.Translate(dir);
-
-		if(Vector3.Distance(transform.position, __path.vectorPath[__currentWaypoint]) < __waypointDistance)
+		if(__currentWaypoint < __path.vectorPath.Count)
 		{
-			__currentWaypoint++;
-			//gameObject.transform.LookAt(__path.vectorPath[__currentWaypoint]);
+			Vector3 dir = (__path.vectorPath[__currentWaypoint] - transform.position).normalized * speed * Time.deltaTime;
+			transform.Translate(dir);
+
+			if(Vector3.Distance(transform.position, __path.vectorPath[__currentWaypoint]) < __waypointDistance)
+			{
+				__currentWaypoint++;
+				//gameObject.transform.LookAt(__path.vectorPath[__currentWaypoint]);
+			}
 		}
 	}
 
@@ -89,7 +92,7 @@ public class Enemy : MonoBehaviour
 			else
 				__seeker.StartPath(transform.position, LevelMaster.Instance.candyshopPosition.position, OnPathComplete);
 		}
-    }
+	}
 
 	public void OnPathComplete(Path p)
 	{

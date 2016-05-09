@@ -19,12 +19,37 @@ public class LevelMaster : Singleton<LevelMaster>
 	private Wave									    __currentWave;
 	private Candyshop									__candyshop;
 	private GameObject								    __enemyToSpawn;
-	
+
+	private enum GameplayState
+	{
+		WAITING,
+		IN_PROGRESS,
+		LEVEL_END,
+		END,
+	}
+
 	//	Properties
 	private int											__gems					= 5;
+	private int                                         __enemiesOnBoard        = 0;
 	private int											__score;
 	private int											__wave;
-	private bool									    __gameplay				= false;
+	private GameplayState								__gameplay				= GameplayState.WAITING;
+
+	private int __EnemiesOnBoard
+	{
+		get
+		{
+			return __enemiesOnBoard;
+		}
+		set
+		{
+			__enemiesOnBoard = value;
+
+			if(__enemiesOnBoard == 0 && (__gameplay == GameplayState.LEVEL_END || WaveNumber >= waves.levelWaves.Length))
+				__EndGame(true);
+		}
+	}
+
 	
 	public int WaveNumber
 	{
@@ -35,6 +60,8 @@ public class LevelMaster : Singleton<LevelMaster>
 		set
 		{
 			__wave = value;
+
+			GUIManager.Instance.Wave = __wave;
 		}
 	}
 
@@ -61,6 +88,7 @@ public class LevelMaster : Singleton<LevelMaster>
 		set
 		{
 			__gems = value;
+			__EnemiesOnBoard--;
 
 			if(__gems == 0)
 			{
@@ -74,17 +102,7 @@ public class LevelMaster : Singleton<LevelMaster>
 	{
 		get
 		{
-			return (TimeManager.Instance.gameplayState && __gameplay);
-		}
-
-		private set
-		{
-			__gameplay = value;
-
-			if(TimeManager.Instance.gameplayState && __gameplay)
-				GUIManager.Instance.Gameplay = true;
-			else
-				GUIManager.Instance.Gameplay = false;
+			return (TimeManager.Instance.gameplayState && __gameplay == GameplayState.IN_PROGRESS);
 		}
 	}
 
@@ -94,37 +112,28 @@ public class LevelMaster : Singleton<LevelMaster>
 		if(!ready)
 			Initialize();
 
-		if(TimeManager.Instance.gameplayState && __gameplay)
+		if(TimeManager.Instance.gameplayState && __gameplay == GameplayState.IN_PROGRESS)
 		{
 			if(__spawning)
 			{
-				Debug.Log("> Spawning...");
 				if(__nextSpawnTime <= 0f)
 					__SpawnEnemy();
 				else
-				{
 					__nextSpawnTime -= Time.deltaTime;
-					Debug.Log(">> Next spawn time countdown");
-				}
 			}
 			else
 			{
-				Debug.Log("> Waiting for wave...");
 				__nextWaveTime -= Time.deltaTime;
 
 				if(__nextWaveTime <= 0f)
 				{
-					Debug.Log(">> Wave going!...");
-					if(WaveNumber >= waves.levelWaves.Length - 1)
+					if(WaveNumber >= waves.levelWaves.Length)
 					{
-						__gameplay = false;
-						Debug.Log("End game!");
+						__gameplay = GameplayState.LEVEL_END;
 						return;
 					}
 
-					__spawning = true;
-					__nextWaveTime = waveDelay;
-					GUIManager.Instance.Wave++;
+					StartNextWave();
 				}
 				else
 					GUIManager.Instance.NextWaveTime = (int)__nextWaveTime;
@@ -159,9 +168,10 @@ public class LevelMaster : Singleton<LevelMaster>
 		if(WaveNumber < waves.levelWaves.Length)
 		{
 			__currentWave = waves.levelWaves[WaveNumber];
-			__nextSpawnTime = spawnDelay;
+			__nextWaveTime = waveDelay;
+			__nextSpawnTime = 0f;
 			__spawning = true;
-			__gameplay = true;
+			__gameplay = GameplayState.IN_PROGRESS;
 
 			WaveNumber++;
 		}
@@ -171,7 +181,6 @@ public class LevelMaster : Singleton<LevelMaster>
 
 	private void __SpawnEnemy()
 	{
-		Debug.Log(">> Spawning enemy...");
 		__nextSpawnTime = spawnDelay;
 
 		__enemyToSpawn = GlobalObjectPoolManager.Instance.GetGameObject(__currentWave.enemies[__enemyTypeNumber]);
@@ -193,6 +202,7 @@ public class LevelMaster : Singleton<LevelMaster>
 			__enemyNumber++;
 
 		__enemyToSpawn.SetActive(true);
+		__EnemiesOnBoard++;
 	}
 
 	public void EnemyDestroyed(GameObject enemy, bool gem)
@@ -203,6 +213,8 @@ public class LevelMaster : Singleton<LevelMaster>
 			gemGO.transform.position = enemy.transform.position;
 			gemGO.SetActive(true);
 		}
+
+		__EnemiesOnBoard--;
 	}
 
 	private void __CalculateMaxEnemyTypes()
@@ -239,7 +251,7 @@ public class LevelMaster : Singleton<LevelMaster>
 
 	private void __EndGame(bool victory = false)
 	{
-		__gameplay = false;
+		__gameplay = GameplayState.LEVEL_END;
 		Debug.Log("Game over, status: " + (victory ? "victory" : "defeat"));
 	}
 }

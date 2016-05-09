@@ -5,21 +5,29 @@ using System.Collections.Generic;
 
 public class EventManager : Singleton<EventManager>
 {
-	private Dictionary<string, UnityEvent>           __events;
+	public enum GameEventType
+	{
+		DEFEAT,
+		VICTORY,
+		START,
+		WAVE,
+	}
+
+	private Dictionary<GameEventType, UnityEvent>           __events;
 
 
 	public override void Initialize()
 	{
-		__events = new Dictionary<string, UnityEvent>();
+		__events = new Dictionary<GameEventType, UnityEvent>();
 
 		ready = true;
 	}
 
-	public void StartListening(string eventName, UnityAction listener)
+	public void StartListening(GameEventType eventType, UnityAction listener)
 	{
 		UnityEvent usedEvent;
 
-		if(__events.TryGetValue(eventName, out usedEvent))
+		if(__events.TryGetValue(eventType, out usedEvent))
 		{
 			usedEvent.AddListener(listener);
 		}
@@ -27,25 +35,25 @@ public class EventManager : Singleton<EventManager>
 		{
 			usedEvent = new UnityEvent();
 			usedEvent.AddListener(listener);
-			__events.Add(eventName, usedEvent);
+			__events.Add(eventType, usedEvent);
 		}
 	}
 
-	public void StopListening(string eventName, UnityAction listener)
+	public void StopListening(GameEventType eventType, UnityAction listener)
 	{
 		UnityEvent usedEvent;
 
-		if(__events.TryGetValue(eventName, out usedEvent))
+		if(__events.TryGetValue(eventType, out usedEvent))
 		{
 			usedEvent.RemoveListener(listener);
 		}
 	}
 
-	public void TriggerEvent(string eventName)
+	public void TriggerEvent(GameEventType eventType)
 	{
 		UnityEvent usedEvent;
 
-		if(__events.TryGetValue(eventName, out usedEvent))
+		if(__events.TryGetValue(eventType, out usedEvent))
 		{
 			usedEvent.Invoke();
 		}

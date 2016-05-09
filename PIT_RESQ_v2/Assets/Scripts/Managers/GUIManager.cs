@@ -225,7 +225,6 @@ public class GUIManager : Singleton<GUIManager>
 	public void SendNextWave()
 	{
 		LevelMaster.Instance.StartNextWave();
-		Wave++;
 	}
 
 	public void DisableInputManager()
@@ -292,7 +291,7 @@ public class GUIManager : Singleton<GUIManager>
 			BuildingManager.Instance.BuildingState = BuildingState.GAMEPLAY;
 	}
 
-	public virtual void Initialize()
+	public override void Initialize()
 	{
 		__uiCamera = GameObject.FindObjectOfType<UICamera>();
 
