@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
+using UnityEngine.Events;
 using System.Collections;
+using System.Collections.Generic;
 
 public class AlienTower : BaseTower
 {
+	public UnityEvent               targetCheck;
+
 	public int DamageLevel
 	{
 		get
@@ -36,115 +39,118 @@ public class AlienTower : BaseTower
 	{
 		get
 		{
-			return __lasers.Count;
+			return _projectiles.ObjectsInPool;
 		}
 	}
 
-	private int						__damageLevel				= 1;
-	private int						__rangeLevel				= 1;
+	private int                     __damageLevel               = 1;
+	private int                     __rangeLevel                = 1;
 	private int                     __damage;
 
 	private List<GameObject>        __targets;
-	private List<LineRenderer>		__lasers;
-
 
 	void Awake()
 	{
+		projectilePrefab = Resources.Load("Towers/Projectiles/AlienLaser") as GameObject;
 		__damage = damage;
-		__lasers = new List<LineRenderer>();
 		__targets = new List<GameObject>();
+		targetCheck = new UnityEvent();
 	}
+
+	/*
+			POTRZEBA EVENTÓW!!!
+	*/
 
 	protected override void Start()
 	{
 		base.Start();
 
+		_projectiles = gameObject.AddComponent<ObjectPool>();
+		_projectiles.Initialize(false);
+		_projectiles.autoincrease = false;
+
 		AddLaser();
 	}
-
-	//	TODO	repair whole Alien Tower system
 
 	protected override void Update()
 	{
 		if(_targetsList.Count > 0)
-		{
-			Debug.Log("> Got targets!");
-			if(__targets.Count < __lasers.Count)
-			{
-				Debug.Log(">> Laser's ready!");
-				GameObject go = _NextTarget();
-
-				Debug.Log(">> go: " + go.name);
-
-				if(go != null)
-				{
-					__targets.Add(go);
-					_targetsList.RemoveAt(0);
-				}
-				else
-					_targetsList = new List<GameObject>();
-            }
-		}
+			__ManageTargets();
 
 		if(__targets.Count > 0)
 			Fire();
-		else
-			__HoldFire();
 	}
 
-	//void LateUpdate()
-	//{
-	//	List<GameObject> newTargets = new List<GameObject>();
+	void FixedUpdate()
+	{
+		if(__targets.Count > 0)
+		{
+			foreach(GameObject e in __targets)
+				e.GetComponent<Enemy>().DealDamage(damage);
+		}
+	}
 
-	//	foreach(GameObject go in __targets)
-	//	{
-	//		if(go.activeInHierarchy)
-	//			newTargets.Add(go);
-	//	}
-
-	//	__targets = newTargets;
-	//}
-
-	//	TODO	change system to be more efective
-
-	public override void Fire()
+	private void __ManageTargets()
 	{
 		int i = 0;
-		bool stop = false;
 
 		do
 		{
-			__lasers[i].SetVertexCount(2);
-			__lasers[i].SetPosition(0, muzzle[0].position);
-			__lasers[i].SetPosition(1, __targets[i].transform.position);
+			if(!_targetsList[i].activeInHierarchy)
+			{
+				_targetsList.Remove(_targetsList[i]);
+				__targets.Remove(_targetsList[i]);
+			}
+			else if(__targets.Count < LaserCount)
+			{
+				if(!__targets.Contains(_targetsList[i]))
+					__targets.Add(_targetsList[i]);
 
-			i++;
-
-			if(i == __lasers.Count || i == __targets.Count)
-				stop = true;
-			
-			Debug.Log(">>> Firing!\t" + stop);
-		} while(!stop);
+				i++;
+			}
+			else
+				break;
+		} while(i < _targetsList.Count);
 	}
 
-	private void __HoldFire()
+	public override void Fire()
 	{
-		foreach(LineRenderer lr in __lasers)
-			lr.enabled = false;
+		foreach(GameObject e in __targets)
+		{
+			if(!_projectiles.GetObject())
+				continue;
+
+			Laser laser = _projectiles.GetObject().GetComponent<Laser>();
+			laser.Target = e;
+			laser.gameObject.SetActive(true);
+		}
+	}
+
+	public bool IsTarget(GameObject enemy)
+	{
+		return __targets.Contains(enemy);
+	}
+
+	protected override void OnTriggerExit(Collider other)
+	{
+		base.OnTriggerExit(other);
+
+		if(__targets.Contains(other.gameObject))
+		{
+			__targets.Remove(other.gameObject);
+			targetCheck.Invoke();
+		}
 	}
 
 	public void AddLaser()
 	{
-		GameObject go = new GameObject();
-		LineRenderer line = go.AddComponent<LineRenderer>();
-        __lasers.Add(line);
-		line.material = new Material(Shader.Find("Particles/Additive"));
-		line.SetColors(Color.red, Color.red);
-		line.SetWidth(0.25f, 0.25f);
-		line.enabled = false;
+		GameObject go = Instantiate(projectilePrefab) as GameObject;
+		_projectiles.AddGameObject(go);
 
+		go.GetComponent<Laser>().parentTower = this;
 		go.transform.position = muzzle[0].position;
 		go.transform.SetParent(muzzle[0]);
 		go.name = "Laser " + LaserCount;
+		go.SetActive(false);
 	}
 }

@@ -255,6 +255,7 @@
      <Compile Include="Assets\Scripts\AstarAI.cs" />
      <Compile Include="Assets\Scripts\Constructions\Candyshop.cs" />
      <Compile Include="Assets\Scripts\Constructions\Dynamic\HitParticles.cs" />
+     <Compile Include="Assets\Scripts\Constructions\Dynamic\Laser.cs" />
      <Compile Include="Assets\Scripts\Constructions\Dynamic\MageMissle.cs" />
      <Compile Include="Assets\Scripts\Constructions\Dynamic\Projectile.cs" />
      <Compile Include="Assets\Scripts\Constructions\Dynamic\RobotBullet.cs" />

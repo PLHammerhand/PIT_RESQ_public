@@ -4,9 +4,7 @@ using System.Collections;
 public abstract class ProjectileTower : BaseTower
 {
 	public float                projectileSpeed;
-	public GameObject           projectilePrefab;
 
-	protected ObjectPool        _projectiles;
 	protected float             _refireTime;
 	protected float             _nextFireTime;
 

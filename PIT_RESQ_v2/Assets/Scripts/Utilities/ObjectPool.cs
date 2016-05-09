@@ -10,15 +10,26 @@ public class ObjectPool : MonoBehaviour
 
 	private List<GameObject>            __objects;
 
-	public void Initialize()
+	public int ObjectsInPool
+	{
+		get
+		{
+			return __objects.Count;
+		}
+	}
+
+	public void Initialize(bool createProjectiles = true)
 	{
 		__objects = new List<GameObject>();
 
-		for(int i = 0; i < count; i++)
+		if(createProjectiles)
 		{
-			GameObject go = Instantiate(objectPrefab) as GameObject;
-			__objects.Add(go);
-			go.SetActive(false);
+			for(int i = 0; i < count; i++)
+			{
+				GameObject go = Instantiate(objectPrefab) as GameObject;
+				__objects.Add(go);
+				go.SetActive(false);
+			}
 		}
 	}
 
@@ -56,5 +67,13 @@ public class ObjectPool : MonoBehaviour
 		}
 
 		return null;
+	}
+
+	public void AddGameObject(GameObject go)
+	{
+		__objects.Add(go);
+
+		if(__objects.Count > count)
+			count++;
 	}
 }

@@ -27,7 +27,7 @@ public class RobotTower : ProjectileTower
 		projectilePrefab = Resources.Load("Towers/Projectiles/RobotBullet") as GameObject;
 
 		if(gameObject.GetComponent<ObjectPool>() == null)
-		Init();
+			Init();
 	}
 
 	protected override void Start()

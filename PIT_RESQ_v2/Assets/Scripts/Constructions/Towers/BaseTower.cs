@@ -11,7 +11,9 @@ public abstract class BaseTower : MonoBehaviour
 	public Transform[]					muzzle;
 	[HideInInspector]
 	public ConstructionPosition         towerPosition;
+	public GameObject					projectilePrefab;
 
+	protected ObjectPool				_projectiles;
 	protected GameObject				_target;
 	protected CapsuleCollider           _capsuleCollider;
 	protected List<GameObject>			_targetsList;
@@ -60,18 +62,23 @@ public abstract class BaseTower : MonoBehaviour
 			if(_targetsList.Contains(other.gameObject))
 				_targetsList.Remove(other.gameObject);
 
-			if(_target == other.gameObject)
-			{
-				if(_targetsList.Count > 0)
-				{
-					_target = _NextTarget();
+			_CheckTargetTriggerExit(other.gameObject);
+		}
+	}
 
-					if(_target == null)
-						_targetsList = new List<GameObject>();
-				}
-				else
-					_target = null;
+	protected void _CheckTargetTriggerExit(GameObject target)
+	{
+		if(_target == target)
+		{
+			if(_targetsList.Count > 0)
+			{
+				_target = _NextTarget();
+
+				if(_target == null)
+					_targetsList = new List<GameObject>();
 			}
+			else
+				_target = null;
 		}
 	}
 

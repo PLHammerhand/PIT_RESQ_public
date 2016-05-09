@@ -15,25 +15,27 @@ public class InputManager : Singleton<InputManager>
 		{
 			if(Input.GetButtonDown("Click") && TimeManager.Instance.gameplayState == true)
 			{
-				if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out __hit, rayRange))
-				{
-					if(__hit.collider.gameObject.layer == LayerMask.NameToLayer("Construction"))
-					{
-						if(BuildingManager.Instance.BuildingState == BuildingState.CONSTRUCTION)
-							BuildingManager.Instance.ConstructionClick(__hit);
-						else if(BuildingManager.Instance.BuildingState != BuildingState.STOP)
-							BuildingManager.Instance.CheckPositionStatus(__hit);
-					}
-				}
-				else
-					GUIManager.Instance.CloseUpgradePanels();
+				__CheckClick();
 			}
 		}
 	}
 
-	void LateUpdate()
+	private void __CheckClick()
 	{
-
+		if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out __hit, rayRange))
+		{
+			if(__hit.collider.gameObject.layer == LayerMask.NameToLayer("Construction"))
+			{
+				if(BuildingManager.Instance.BuildingState == BuildingState.CONSTRUCTION)
+					BuildingManager.Instance.ConstructionClick(__hit);
+				else if(BuildingManager.Instance.BuildingState != BuildingState.STOP)
+					BuildingManager.Instance.CheckPositionStatus(__hit);
+			}
+			else
+				GUIManager.Instance.CloseUpgradePanels();
+		}
+		else
+			GUIManager.Instance.CloseUpgradePanels();
 	}
 
 	public override void Initialize()
