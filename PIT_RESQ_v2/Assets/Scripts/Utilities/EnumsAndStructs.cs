@@ -1,12 +1,20 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
+using UnityEngine;
 
-
-[System.Serializable]
+//	TODO	Zmiana Wave(GameObject[], int[]) na coś w stylu:
+//				Wave(Enemies[]) ze strukturą:
+//				Enemies(GameObject, int)
+[Serializable]
 public struct Wave
 {
-	public GameObject[]				enemies;
-	public int[]					enemiesCount;
+	public EnemyCount[]				enemies;
+}
+
+[Serializable]
+public struct EnemyCount
+{
+	public GameObject               enemy;
+	public int                      count;
 }
 
 public enum BuildingState

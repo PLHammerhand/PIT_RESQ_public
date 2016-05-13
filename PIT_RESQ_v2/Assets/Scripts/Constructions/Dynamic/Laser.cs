@@ -46,8 +46,8 @@ public class Laser : Projectile
 	{
 		if(__target == null || !__target.activeInHierarchy)
 			__HoldFire();
-
-		__laser.SetPosition(1, __target.transform.position);
+		else
+			__laser.SetPosition(1, __target.transform.position);
 	}
 
 	private void __HoldFire()

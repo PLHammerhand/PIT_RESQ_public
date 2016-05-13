@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
+using System.Collections.Generic;
 
 public class GUIManager : Singleton<GUIManager>
 {
+	public float                courierCooldown;
+
 	//	--	Panels
 	//	--	--	Info
 	private UIPanel				__infoPanel;
@@ -63,6 +65,8 @@ public class GUIManager : Singleton<GUIManager>
 	//	--	Other
 	//private 
 	private UICamera			__uiCamera;
+	private float               __courierCooldown					= 0;
+
 	private int					__money;
 	private int                 __score;
 	private int                 __wave;
@@ -126,6 +130,7 @@ public class GUIManager : Singleton<GUIManager>
 			__mageButton.isEnabled = value;
 			__robotButton.isEnabled = value;
 
+			__courierButton.isEnabled = value;
 			__nextWaveButton.isEnabled = value;
 		}
 	}
@@ -141,72 +146,36 @@ public class GUIManager : Singleton<GUIManager>
 	{
 		if(__uiCamera == null)
 			Initialize();
+		else
+		{
+			if(!__courierButton.isEnabled)
+			{
+				__courierCooldown -= Time.deltaTime;
+				__courierTimer.text = "" + (int)__courierCooldown;
+			}
+		}
 	}
 
 	public void OpenUpgradePanel(Tower tower)
 	{
-		int upgrade;
-
 		switch(tower)
 		{
 			case Tower.ALIEN:
-				AlienTower clickedTower = BuildingManager.Instance.ClickedPosition.ConstructedTower as AlienTower;
-
-				upgrade = (clickedTower.DamageLevel + 1) * CostsManager.Instance.alienDamageUpgrade;
-				__alienDamageUpgradeLabel.text = "" + upgrade;
-
-				if(__money < upgrade)
-					__alienDamageUpgradeButton.isEnabled = false;
-				else
-					__alienDamageUpgradeButton.isEnabled = true;
-
-				upgrade = (clickedTower.LaserCount + 1) * CostsManager.Instance.alienLaserUpgrade;
-				__alienLaserUpgradeLabel.text = "" + upgrade;
-
-				if(__money < upgrade)
-					__alienLaserUpgradeButton.isEnabled = false;
-				else
-					__alienLaserUpgradeButton.isEnabled = true;
-
-				upgrade = (clickedTower.RangeLevel + 1) * CostsManager.Instance.alienRangeUpgrade;
-				__alienRangeUpgradeLabel.text = "" + upgrade;
-
-				if(__money < upgrade)
-					__alienRangeUpgradeButton.isEnabled = false;
-				else
-					__alienRangeUpgradeButton.isEnabled = true;
+				__SetupAlienUpgradeButtons();
 
 				__alienUpgradePanel.Play(true);
 				__mageUpgradePanel.Play(false);
 				__robotUpgradePanel.Play(false);
 				break;
 			case Tower.MAGE:
-				upgrade = ((BuildingManager.Instance.ClickedPosition.ConstructedTower as MageTower).level + 1) * CostsManager.Instance.mageUpgrade;
-				__mageLeftUpgradeLabel.text = "" + upgrade;
-				__mageRightUpgradeLabel.text = "" + upgrade;
-
-				if(__money < upgrade)
-				{
-					__mageLeftUpgradeButton.isEnabled = false;
-					__mageRightUpgradeButton.isEnabled = false;
-				}
-				else
-				{
-					__mageLeftUpgradeButton.isEnabled = true;
-					__mageRightUpgradeButton.isEnabled = true;
-				}
+				__SetupMageUpgradeButtons();
 
 				__mageUpgradePanel.Play(true);
 				__alienUpgradePanel.Play(false);
 				__robotUpgradePanel.Play(false);
 				break;
 			case Tower.ROBOT:
-				upgrade = CostsManager.Instance.robotTowerUpgrade * RobotTower.Level;
-
-				if(__money < CostsManager.Instance.robotTowerUpgrade * RobotTower.Level)
-					__robotUpgradeButton.isEnabled = false;
-				else
-					__robotUpgradeButton.isEnabled = true;
+				__SetupRobotUpgradeButtons();
 
 				__robotUpgradePanel.Play(true);
 				__alienUpgradePanel.Play(false);
@@ -220,6 +189,18 @@ public class GUIManager : Singleton<GUIManager>
 		__alienUpgradePanel.Play(false);
 		__mageUpgradePanel.Play(false);
 		__robotUpgradePanel.Play(false);
+	}
+
+	public void ToggleSuperpowersPanel(bool open = false)
+	{
+		__superpowersPanel.Play(open);
+	}
+
+	public void ResqGem()
+	{
+		LevelMaster.Instance.ResqCurrentGem();
+		__courierCooldown = courierCooldown;
+		__courierButton.isEnabled = false;
 	}
 
 	public void SendNextWave()
@@ -306,6 +287,10 @@ public class GUIManager : Singleton<GUIManager>
 			__mageCostLabel = __mageButton.transform.FindChild("Label").GetComponent<UILabel>();
 			__robotCostLabel = __robotButton.transform.FindChild("Label").GetComponent<UILabel>();
 
+			__alienCostLabel.text = "" + CostsManager.Instance.baseTower;
+			__mageCostLabel.text = "" + CostsManager.Instance.baseTower;
+			__robotCostLabel.text = "" + CostsManager.Instance.baseTower;
+
 			__moniesLabel = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/Money").gameObject.GetComponent<UILabel>();
 
 			__infoPanel = __uiCamera.transform.FindChild("Constructions/ConstructionsPanel/Info").GetComponent<UIPanel>();
@@ -365,35 +350,99 @@ public class GUIManager : Singleton<GUIManager>
 		}
 	}
 
-	private void __CheckFunds()
+	private void __SetupAlienUpgradeButtons()
 	{
-		if(__money < CostsManager.Instance.baseTower)
+		AlienTower clickedTower = BuildingManager.Instance.ClickedPosition.ConstructedTower as AlienTower;
+
+		int upgradeCost = (clickedTower.DamageLevel) * CostsManager.Instance.alienDamageUpgrade;
+		__alienDamageUpgradeLabel.text = "" + upgradeCost;
+
+		if(__money < upgradeCost)
+			__alienDamageUpgradeButton.isEnabled = false;
+		else
+			__alienDamageUpgradeButton.isEnabled = true;
+
+		upgradeCost = (clickedTower.LaserCount) * CostsManager.Instance.alienLaserUpgrade;
+		__alienLaserUpgradeLabel.text = "" + upgradeCost;
+
+		if(__money < upgradeCost)
+			__alienLaserUpgradeButton.isEnabled = false;
+		else
+			__alienLaserUpgradeButton.isEnabled = true;
+
+		upgradeCost = (clickedTower.RangeLevel) * CostsManager.Instance.alienRangeUpgrade;
+		__alienRangeUpgradeLabel.text = "" + upgradeCost;
+
+		if(__money < upgradeCost)
+			__alienRangeUpgradeButton.isEnabled = false;
+		else
+			__alienRangeUpgradeButton.isEnabled = true;
+	}
+
+	private void __SetupMageUpgradeButtons()
+	{
+		int upgradeCost = ((BuildingManager.Instance.ClickedPosition.ConstructedTower as MageTower).level + 1) * CostsManager.Instance.mageUpgrade;
+		__mageLeftUpgradeLabel.text = "" + upgradeCost;
+		__mageRightUpgradeLabel.text = "" + upgradeCost;
+
+		if(__money < upgradeCost)
 		{
-			__alienButton.isEnabled = false;
-			__mageButton.isEnabled = false;
-			__robotButton.isEnabled = false;
+			__mageLeftUpgradeButton.isEnabled = false;
+			__mageRightUpgradeButton.isEnabled = false;
 		}
 		else
 		{
+			__mageLeftUpgradeButton.isEnabled = true;
+			__mageRightUpgradeButton.isEnabled = true;
+		}
+	}
+
+	private void __SetupRobotUpgradeButtons()
+	{
+		int upgradeCost = CostsManager.Instance.robotUpgrade * RobotTower.Level;
+
+		if(__money < CostsManager.Instance.baseTower + CostsManager.Instance.robotUpgrade * RobotTower.Level)
+			__robotUpgradeButton.isEnabled = false;
+		else
+			__robotUpgradeButton.isEnabled = true;
+	}
+
+	private void __CheckFunds()
+	{
+		int cost = CostsManager.Instance.baseTower + CostsManager.Instance.towerCountCost * BuildingManager.Instance.TowersCount[Tower.ALIEN];
+		__alienCostLabel.text = "" + cost;
+
+		if(__money < cost)
+			__alienButton.isEnabled = false;
+		else
 			__alienButton.isEnabled = true;
+
+		cost = CostsManager.Instance.baseTower + CostsManager.Instance.towerCountCost * BuildingManager.Instance.TowersCount[Tower.MAGE];
+		__mageCostLabel.text = "" + cost;
+
+		if(__money < CostsManager.Instance.baseTower + CostsManager.Instance.towerCountCost * BuildingManager.Instance.TowersCount[Tower.MAGE])
+			__mageButton.isEnabled = false;
+		else
 			__mageButton.isEnabled = true;
 
-			if(__money < (CostsManager.Instance.baseTower + (RobotTower.Level - 1) * CostsManager.Instance.robotTowerUpgrade))
-				__robotButton.isEnabled = false;
-			else
-				__robotButton.isEnabled = true;
-		}
+		cost = CostsManager.Instance.baseTower + (RobotTower.Level - 1) * CostsManager.Instance.robotUpgrade;
+		__robotCostLabel.text = "" + cost;
+
+		if(__money < cost)
+			__robotButton.isEnabled = false;
+		else
+			__robotButton.isEnabled = true;
 	}
 
 	public void EndGame(bool victory = false)
 	{
 		__generalLabel.text = (victory ? "Victory!" : "Defeat");
 
-		UIPanel[] allPanels = GameObject.FindObjectsOfType<UIPanel>();
+		//UIPanel[] allPanels = GameObject.FindObjectsOfType<UIPanel>();
 
-		foreach(UIPanel panel in allPanels)
-			panel.gameObject.SetActive(false);
+		//foreach(UIPanel panel in allPanels)
+		//	panel.enabled = false;
 
-		__generalPanel.gameObject.SetActive(true);
+		//__generalPanel.enabled = true;
 	}
 }

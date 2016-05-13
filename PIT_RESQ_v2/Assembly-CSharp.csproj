@@ -279,6 +279,7 @@
      <Compile Include="Assets\Scripts\Managers\UpgradeManager.cs" />
      <Compile Include="Assets\Scripts\Singleton.cs" />
      <Compile Include="Assets\Scripts\Utilities\EnumsAndStructs.cs" />
+     <Compile Include="Assets\Scripts\Utilities\Gem.cs" />
      <Compile Include="Assets\Scripts\Utilities\ObjectPool.cs" />
      <Compile Include="Assets\Scripts\Utilities\Rotator.cs" />
      <Compile Include="Assets\Scripts\Utilities\Waves.cs" />
@@ -291,7 +292,6 @@
      <None Include="Assets\AstarPathfindingProject\Readme_upgrading.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored.shader" />
      <None Include="Assets\Gem Shader\diamond shader.shader" />
-     <None Include="Assets\Editor\WaveEditor.txt" />
      <None Include="Assets\AstarPathfindingProject\ExampleScenes\Materials\Projector Light.shader" />
      <None Include="Assets\AstarPathfindingProject\Readme.txt" />
      <None Include="Assets\Plugins\Pixelplacement\iTween\ReadMe!\ReadMe!.txt" />

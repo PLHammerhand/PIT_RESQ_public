@@ -49,7 +49,6 @@ public class Enemy : MonoBehaviour
 		__currentHealth = health;
 		__returning = false;
 		__CalculatePath();
-
 	}
 
 	void Start()
@@ -109,6 +108,11 @@ public class Enemy : MonoBehaviour
 			__gem.SetActive(true);
 	}
 
+	public void FindPathTo(Vector3 pos)
+	{
+		__seeker.StartPath(transform.position, pos, OnPathComplete);
+	}
+
 	public void DealDamage(int amount)
 	{
 		__currentHealth -= amount;
@@ -137,6 +141,8 @@ public class Enemy : MonoBehaviour
 
 	void OnDisable()
 	{
+		__gem.SetActive(false);
 		__seeker.pathCallback -= OnPathComplete;
+		gameObject.transform.position = new Vector3(0f, -100f, 0f);
 	}
 }

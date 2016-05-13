@@ -3,6 +3,8 @@ using System.Collections;
 
 public class Init : MonoBehaviour
 {
+	public int                  courierCooldown				= 30;
+
 	public LayerMask            constructionLayer;
 
 	void Start()
@@ -14,7 +16,6 @@ public class Init : MonoBehaviour
 		LevelMaster.Instance.Initialize();
 
 		BuildingManager.Instance.Initialize();
-		BuildingManager.Instance.constructionLayer = constructionLayer;
 
 		GUIManager.Instance.Initialize();
 	}
@@ -32,5 +33,8 @@ public class Init : MonoBehaviour
 	private void __StartGame()
 	{
 		BuildingManager.Instance.Money = 500;
+		BuildingManager.Instance.constructionLayer = constructionLayer;
+
+		GUIManager.Instance.courierCooldown = courierCooldown;
 	}
 }

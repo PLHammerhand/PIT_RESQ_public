@@ -28,6 +28,8 @@ public abstract class BaseTower : MonoBehaviour
 			muzzle = new Transform[1];
 			muzzle[0] = gameObject.transform.FindChild("Muzzle");
 		}
+
+		_capsuleCollider = gameObject.GetComponent<CapsuleCollider>();
 	}
 
 	protected virtual void Update()

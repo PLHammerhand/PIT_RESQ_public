@@ -26,6 +26,7 @@ public class BuildingManager : Singleton<BuildingManager>
 	private GameObject						__alienTowerUpgradeVisuals;
 	private GameObject						__mageTowerUpgradeVisuals;
 	private GameObject						__robotTowerUpgradeVisuals;
+	private Dictionary<Tower, int>          __towersCount;
 
 	public BuildingState BuildingState
 	{
@@ -77,6 +78,14 @@ public class BuildingManager : Singleton<BuildingManager>
 		}
 	}
 
+	public Dictionary<Tower, int> TowersCount
+	{
+		get
+		{
+			return __towersCount;
+		}
+	}
+
 
 	void Awake()
 	{
@@ -86,6 +95,10 @@ public class BuildingManager : Singleton<BuildingManager>
 	public override void Initialize()
 	{
 		robotTowerPrefabs = new List<GameObject>();
+		__towersCount = new Dictionary<Tower, int>();
+		__towersCount.Add(Tower.ALIEN, 0);
+		__towersCount.Add(Tower.MAGE, 0);
+		__towersCount.Add(Tower.ROBOT, 0);
 
 		constructionPositions.AddRange(GameObject.FindObjectsOfType<ConstructionPosition>());
 
@@ -122,7 +135,7 @@ public class BuildingManager : Singleton<BuildingManager>
 		GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(__mageBuildParticles, 2);
 	}
 
-	public void ShowTowerBuildParticles(GameObject go)
+	public void ShowTowerBuildParticles(GameObject go = null)
 	{
 		if(go.GetComponent<BaseTower>() is AlienTower)
 		{
@@ -163,7 +176,7 @@ public class BuildingManager : Singleton<BuildingManager>
 		{
 			//GameObject visuals;
 			__currentConstructionPosition = constPos;
-			constPos.Renderer = true;
+			__currentConstructionPosition.Renderer = true;
 			BuildingState = BuildingState.UPGRADE;
 
 			if(constPos.ConstructedTower is AlienTower)
@@ -189,18 +202,26 @@ public class BuildingManager : Singleton<BuildingManager>
 
 	public void UpgradeAlienTower(TowerAttribute arg)
 	{
+		AlienTower clickedTower = BuildingManager.Instance.ClickedPosition.ConstructedTower as AlienTower;
+		int cost = 0;
+
 		switch(arg)
 		{
 			case TowerAttribute.DAMAGE:
+				cost = (clickedTower.DamageLevel) * CostsManager.Instance.alienDamageUpgrade;
 				(__currentConstructionPosition.ConstructedTower as AlienTower).DamageLevel++;
-                break;
+				break;
 			case TowerAttribute.LASER:
+				cost = (clickedTower.LaserCount) * CostsManager.Instance.alienLaserUpgrade;
 				(__currentConstructionPosition.ConstructedTower as AlienTower).AddLaser();
 				break;
 			case TowerAttribute.RANGE:
+				cost = (clickedTower.RangeLevel) * CostsManager.Instance.alienRangeUpgrade;
 				(__currentConstructionPosition.ConstructedTower as AlienTower).RangeLevel++;
-                break;
+				break;
 		}
+
+		Money -= cost;
 	}
 
 	public void UpgradeMageTower(bool upgradeToLeft)
@@ -222,6 +243,8 @@ public class BuildingManager : Singleton<BuildingManager>
 		GlobalObjectPoolManager.Instance.AddGameObject(prefab, go);
 
 		go.SetActive(true);
+
+		Money -= ((BuildingManager.Instance.ClickedPosition.ConstructedTower as MageTower).level + 1) * CostsManager.Instance.mageUpgrade;
 	}
 
 	public void UpgradeRobotTower()
@@ -244,30 +267,41 @@ public class BuildingManager : Singleton<BuildingManager>
 
 			RobotTower.Level++;
 		}
+
+		Money -= CostsManager.Instance.robotUpgrade * RobotTower.Level;
 	}
 
 	private void __BuildTower(GameObject go)
 	{
+		Tower towerToBuild = Tower.ALIEN;
+
 		switch(tower)
 		{
 			case Tower.ALIEN:
+				towerToBuild = Tower.ALIEN;
+				Money -= __towersCount[towerToBuild] * CostsManager.Instance.towerCountCost + CostsManager.Instance.baseTower;
 				go.transform.position = __currentConstructionPosition.transform.position + new Vector3(0f, alienHeight, 0f);
 				go.SetActive(true);
 				__BuildAlienTower(go);
 				break;
 			case Tower.MAGE:
+				towerToBuild = Tower.MAGE;
+				Money -= __towersCount[towerToBuild] * CostsManager.Instance.towerCountCost + CostsManager.Instance.baseTower;
 				go.transform.position = __currentConstructionPosition.transform.position;
 				go.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
 				go.SetActive(true);
 				__BuildMageTower(go);
 				break;
 			case Tower.ROBOT:
+				towerToBuild = Tower.ROBOT;
+				Money -= CostsManager.Instance.baseTower + (RobotTower.Level - 1) * CostsManager.Instance.robotUpgrade;
 				go.transform.position = __currentConstructionPosition.transform.position;
 				go.SetActive(true);
 				__BuildRobotTower(go);
 				break;
 		}
 
+		__towersCount[towerToBuild]++;
 		BuildingState = BuildingState.GAMEPLAY;
 	}
 
@@ -292,9 +326,9 @@ public class BuildingManager : Singleton<BuildingManager>
 		args.Add("position", __currentConstructionPosition.transform.position);
 		args.Add("time", (alienHeight / 100f + 0.05f));
 		args.Add("easetype", iTween.EaseType.linear);
-		//args.Add("oncomplete", "ShowTowerBuildParticles");
-		//args.Add("oncompletetarget", Instance);
-		//args.Add("oncompleteparams", go.gameObject);
+		args.Add("oncomplete", "ShowTowerBuildParticles");
+		args.Add("oncompletetarget", Instance.gameObject);
+		args.Add("oncompleteparams", go);
 
 		iTween.MoveTo(go, args);
 	}

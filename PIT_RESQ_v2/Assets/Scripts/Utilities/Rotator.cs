@@ -3,11 +3,11 @@ using System.Collections;
 
 public class Rotator : MonoBehaviour
 {
-	[Range(0f, 90f)]
+	[Range(0f, 360f)]
 	public float            xRotation				= 45f;
-	[Range(0f, 90f)]
+	[Range(0f, 360f)]
 	public float            yRotation               = 45f;
-	[Range(0f, 90f)]
+	[Range(0f, 360f)]
 	public float            zRotation               = 45f;
 
 

@@ -18,6 +18,7 @@ public class LevelMaster : Singleton<LevelMaster>
 	private bool										__spawning              = false;
 	private Wave									    __currentWave;
 	private Candyshop									__candyshop;
+	private Gem											__gem;
 	private GameObject								    __enemyToSpawn;
 
 	private enum GameplayState
@@ -179,15 +180,55 @@ public class LevelMaster : Singleton<LevelMaster>
 			__EndGame();
 	}
 
+	public void GemClick(RaycastHit hit)
+	{
+		Debug.Log("Clicked at gem!");
+		__gem = hit.collider.gameObject.GetComponent<Gem>();
+		__gem.GemLight = true;
+		GUIManager.Instance.ToggleSuperpowersPanel(true);
+	}
+
+	public void GemClick(GameObject gem)
+	{
+		if(__gem != null)
+			__gem.GemLight = false;
+
+		if(gem == null)
+		{
+			__gem = null;
+			GUIManager.Instance.ToggleSuperpowersPanel(false);
+		}
+		else
+		{
+			__gem = gem.GetComponent<Gem>();
+			__gem.GemLight = true;
+			GUIManager.Instance.ToggleSuperpowersPanel(true);
+		}
+	}
+
+	public void ResqCurrentGem()
+	{
+		__gem.Target = null;
+		__gem.gameObject.SetActive(false);
+		__candyshop.ReturnGem();
+	}
+
+	public Enemy FindClosestEnemy(GameObject go)
+	{
+		//	TODO
+		return null;
+	}
+
 	private void __SpawnEnemy()
 	{
 		__nextSpawnTime = spawnDelay;
 
-		__enemyToSpawn = GlobalObjectPoolManager.Instance.GetGameObject(__currentWave.enemies[__enemyTypeNumber]);
+		__enemyToSpawn = GlobalObjectPoolManager.Instance.GetGameObject(__currentWave.enemies[__enemyTypeNumber].enemy);
 		__enemyToSpawn.transform.position = enemySpawn.transform.position;
-		__enemyToSpawn.transform.rotation = enemySpawn.transform.rotation;
+		__enemyToSpawn.transform.rotation = Quaternion.identity;
+		__enemyToSpawn.GetComponent<Enemy>().FindPathTo(candyshopPosition.position);
 
-		if(__enemyNumber >= __currentWave.enemiesCount[__enemyTypeNumber] - 1)
+		if(__enemyNumber >= __currentWave.enemies[__enemyTypeNumber].count - 1)
 		{
 			if(__enemyTypeNumber >= __currentWave.enemies.Length - 1)
 			{
@@ -217,41 +258,44 @@ public class LevelMaster : Singleton<LevelMaster>
 		__EnemiesOnBoard--;
 	}
 
-	private void __CalculateMaxEnemyTypes()
-	{
-		Waves waves = GameObject.FindObjectOfType<Waves>();
+	//	TODO
+	//		TEST THIS AND GLOBALOBJECTPOOLMANAGER
+	//private void __CalculateMaxEnemyTypes()
+	//{
+	//	Waves waves = GameObject.FindObjectOfType<Waves>();
 
-		if(waves == null)
-		{
-			Debug.LogError("!!! NO WAVES INFO FOUND !!!");
-			return;
-		}
+	//	if(waves == null)
+	//	{
+	//		Debug.LogError("!!! NO WAVES INFO FOUND !!!");
+	//		return;
+	//	}
 
-		Dictionary<GameObject, int> maxEnemies = new Dictionary<GameObject, int>();
+	//	Dictionary<GameObject, int> maxEnemies = new Dictionary<GameObject, int>();
 
-		foreach(Wave w in waves.levelWaves)
-		{
-			int outInt;
+	//	foreach(Wave w in waves.levelWaves)
+	//	{
+	//		int outInt;
 
-			for(int i = 0; i < w.enemies.Length; i++)
-			{
-				if(maxEnemies.TryGetValue(w.enemies[i], out outInt))
-				{
-					if(outInt < w.enemiesCount[i])
-						outInt = w.enemiesCount[i];
-				}
-				else
-					maxEnemies.Add(w.enemies[i], w.enemiesCount[i]);
-			}
-		}
+	//		for(int i = 0; i < w.enemies.Length; i++)
+	//		{
+	//			if(maxEnemies.TryGetValue(w.enemies[i].enemy, out outInt))
+	//			{
+	//				if(outInt < w.enemies[i].count)
+	//					outInt = w.enemies[i].count;
+	//			}
+	//			else
+	//				maxEnemies.Add(w.enemies[i].enemy, w.enemies[i].count);
+	//		}
+	//	}
 
-		foreach(GameObject key in maxEnemies.Keys)
-			GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(key, maxEnemies[key]);
-	}
+	//	foreach(GameObject key in maxEnemies.Keys)
+	//		GlobalObjectPoolManager.Instance.CreateMultipleObjectsInPool(key, maxEnemies[key]);
+	//}
 
 	private void __EndGame(bool victory = false)
 	{
 		__gameplay = GameplayState.LEVEL_END;
 		Debug.Log("Game over, status: " + (victory ? "victory" : "defeat"));
+		GUIManager.Instance.EndGame(victory);
 	}
 }

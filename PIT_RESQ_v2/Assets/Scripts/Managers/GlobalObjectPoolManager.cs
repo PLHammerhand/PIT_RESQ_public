@@ -76,11 +76,15 @@ public class GlobalObjectPoolManager : Singleton<GlobalObjectPoolManager>
 		if(!__objects.TryGetValue(go, out outList))
 		{
 			__CreateKeyListPair(go).SetActive(createActive);
+			__objects.TryGetValue(go, out outList);
 			number--;
-		}
+        }
 
 		if(outList == null)
-			outList = new List<GameObject>();
+		{
+			Debug.LogError("No object pool for " + go.name + " was created!");
+			return;
+		}
 
 		for(int i = 0; i < number; i++)
 		{

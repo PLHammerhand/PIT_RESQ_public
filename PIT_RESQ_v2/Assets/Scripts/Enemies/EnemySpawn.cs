@@ -6,7 +6,7 @@ public class EnemySpawn : MonoBehaviour
 	[Range(1f, 5f)]
 	public float                speed                   = 2f;
 	public bool                 circularRoute           = true;
-	public Vector3[]            patrolPath;
+	public GameObject[]         patrolPath;
 
 	private int                 __waypointNumber        = 0;
 	private bool                __returning             = false;
@@ -17,7 +17,7 @@ public class EnemySpawn : MonoBehaviour
 		if(patrolPath.Length > 1)
 		{
 			Hashtable args = new Hashtable();
-			args.Add("to", patrolPath[__waypointNumber]);
+			args.Add("position", patrolPath[__waypointNumber].transform);
 			args.Add("speed", speed);
 			args.Add("easetype", iTween.EaseType.easeOutSine);
 			args.Add("orienttopath", true);
@@ -35,8 +35,19 @@ public class EnemySpawn : MonoBehaviour
 		else
 			__waypointNumber++;
 
+		if(__waypointNumber == patrolPath.Length)
+		{
+			Debug.Log("Changing...");
+			if(!circularRoute)
+				__returning = true;
+			else
+				__waypointNumber = 0;
+		}
+		else if(__returning && __waypointNumber == 0)
+			__returning = false;
+
 		Hashtable args = new Hashtable();
-		args.Add("to", patrolPath[__waypointNumber]);
+		args.Add("position", patrolPath[__waypointNumber].transform);
 		args.Add("speed", speed);
 		args.Add("easetype", iTween.EaseType.easeInOutSine);
 		args.Add("orienttopath", true);

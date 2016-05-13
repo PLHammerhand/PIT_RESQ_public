@@ -98,13 +98,18 @@ public class AlienTower : BaseTower
 		{
 			if(!_targetsList[i].activeInHierarchy)
 			{
+				if(__targets.Contains(_targetsList[i]))
+					__targets.Remove(_targetsList[i]);
+
 				_targetsList.Remove(_targetsList[i]);
-				__targets.Remove(_targetsList[i]);
 			}
 			else if(__targets.Count < LaserCount)
 			{
 				if(!__targets.Contains(_targetsList[i]))
+				{
+					Debug.Log("Firing at target");
 					__targets.Add(_targetsList[i]);
+				}
 
 				i++;
 			}
