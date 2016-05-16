@@ -19,14 +19,17 @@ public class Candyshop : MonoBehaviour
 		{
 			Enemy enemy = other.gameObject.GetComponent<Enemy>();
 
-			if(gems > 0)
+			if(!enemy.GotGem)
 			{
-				enemy.Return(true);
-				gems--;
-				gemsInCandyshop[gems].gameObject.SetActive(false);
+				if(gems > 0)
+				{
+					enemy.Return(true);
+					gems--;
+					gemsInCandyshop[gems].gameObject.SetActive(false);
+				}
+				else
+					enemy.Return();
 			}
-
-			enemy.Return();
 		}
 	}
 

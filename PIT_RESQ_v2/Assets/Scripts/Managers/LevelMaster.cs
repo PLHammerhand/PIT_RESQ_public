@@ -27,6 +27,7 @@ public class LevelMaster : Singleton<LevelMaster>
 		IN_PROGRESS,
 		LEVEL_END,
 		END,
+		OVER
 	}
 
 	//	Properties
@@ -246,7 +247,7 @@ public class LevelMaster : Singleton<LevelMaster>
 		__EnemiesOnBoard++;
 	}
 
-	public void EnemyDestroyed(GameObject enemy, bool gem)
+	public void EnemyDestroyed(Enemy enemy, bool gem)
 	{
 		if(gem)
 		{
@@ -255,6 +256,7 @@ public class LevelMaster : Singleton<LevelMaster>
 			gemGO.SetActive(true);
 		}
 
+		BuildingManager.Instance.Money += enemy.value;
 		__EnemiesOnBoard--;
 	}
 

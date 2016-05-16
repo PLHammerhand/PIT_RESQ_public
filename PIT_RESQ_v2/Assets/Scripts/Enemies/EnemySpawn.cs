@@ -37,7 +37,6 @@ public class EnemySpawn : MonoBehaviour
 
 		if(__waypointNumber == patrolPath.Length)
 		{
-			Debug.Log("Changing...");
 			if(!circularRoute)
 				__returning = true;
 			else

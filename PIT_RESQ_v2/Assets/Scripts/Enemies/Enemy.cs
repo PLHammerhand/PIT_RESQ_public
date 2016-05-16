@@ -4,8 +4,8 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour
 {
+	public int                  value					= 10;
 	public int                  health;
-	public int                  value;
 	public float                speed;
 	public Transform            target;
 
@@ -123,7 +123,7 @@ public class Enemy : MonoBehaviour
 
 	private void __SelfDestroy()
 	{
-		LevelMaster.Instance.EnemyDestroyed(gameObject, GotGem);
+		LevelMaster.Instance.EnemyDestroyed(this, GotGem);
 		LevelMaster.Instance.Score += health / 10;
 		gameObject.SetActive(false);
 	}
