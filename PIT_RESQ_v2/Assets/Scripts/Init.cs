@@ -3,8 +3,10 @@ using System.Collections;
 
 public class Init : MonoBehaviour
 {
+	public int                  startingMoney               = 500;
 	public int                  courierCooldown				= 30;
 
+	public LayerMask            clickLayers;
 	public LayerMask            constructionLayer;
 
 	void Start()
@@ -32,8 +34,10 @@ public class Init : MonoBehaviour
 
 	private void __StartGame()
 	{
-		BuildingManager.Instance.Money = 500;
+		BuildingManager.Instance.Money = startingMoney;
 		BuildingManager.Instance.constructionLayer = constructionLayer;
+
+		InputManager.Instance.clickLayers = clickLayers;
 
 		GUIManager.Instance.courierCooldown = courierCooldown;
 	}

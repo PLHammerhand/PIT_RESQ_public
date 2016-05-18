@@ -20,11 +20,13 @@ public class GlobalObjectPoolManager : Singleton<GlobalObjectPoolManager>
 			}
 
 			go = Instantiate(pooled) as GameObject;
+			go.name = pooled.name + " " + go.GetInstanceID();
 			outList.Add(go);
 
 			return go;
 		}
-		else return __CreateKeyListPair(pooled);
+		else
+			return __CreateKeyListPair(pooled);
 	}
 
 	public void AddGameObject(GameObject prefab, GameObject go)

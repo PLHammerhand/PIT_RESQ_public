@@ -11,6 +11,8 @@ public class InputManager : Singleton<InputManager>
 	public float            rayRange                    = 30f;
 	public float            cameraMovingSpeed           = 7.5f;
 
+	public LayerMask        clickLayers;
+
 	private Camera          __mainCamera;
 	private RaycastHit      __hit;
 
@@ -46,9 +48,14 @@ public class InputManager : Singleton<InputManager>
 
 	private void __CheckClick()
 	{
-		if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out __hit, rayRange))
+		if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out __hit, rayRange, clickLayers))
 		{
 			LayerMask layer = __hit.collider.gameObject.layer;
+
+			Debug.Log("> Name:\t" + __hit.collider.name);
+			Debug.Log("> Pos:\t" + __hit.collider.transform.position);
+			Debug.Log("> Layer:\t" + LayerMask.LayerToName(__hit.collider.gameObject.layer));
+
 
 			if(layer == LayerMask.NameToLayer("Construction"))
 				__ConstructionClick();
